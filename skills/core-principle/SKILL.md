@@ -1,6 +1,6 @@
 ---
 name: core-principle
-description: Use when brainstorming, clarifying requirements, modeling domains, analyzing business rules, or evaluating behavior changes for systems, features, and components when entities, state transitions, and functional boundaries are unclear or easy to skip.
+description: Use when brainstorming, clarifying requirements, modeling domains, analyzing business rules, or evaluating behavior changes when key entities, relationships, decisive attributes, state transitions, side effects, or availability conditions are unclear, incomplete, or easy to skip.
 ---
 
 # Core Principle
@@ -13,6 +13,8 @@ description: Use when brainstorming, clarifying requirements, modeling domains, 
 
 **与 `brainstorming` 的关系：** `brainstorming` 决定如何进入设计讨论；本技能决定进入讨论前必须先建立什么认知骨架。
 
+**完整性原则：** 7 个维度不是标题占位。每一维都必须说到“足以支撑后续设计”的最低信息；如果信息不足，就明确写 `待确认`，不能跳过。
+
 ## When to Use
 
 **Use when：**
@@ -21,6 +23,7 @@ description: Use when brainstorming, clarifying requirements, modeling domains, 
 - 需要先统一系统理解，再进入方案、拆解、设计或实现
 - 面对复杂业务规则、状态流转、实体关系、边界条件时
 - 用户要求“先想清楚再做”或场景本身容易误改行为时
+- 已经开始设计，但发现关系没说清、属性没归属、状态没闭环、界限没落到条件和变化时
 
 **Do not use when：**
 - 只是查一个现成 API、命令或语法
@@ -43,6 +46,29 @@ description: Use when brainstorming, clarifying requirements, modeling domains, 
 
 如果某一步说不清，就不要进入下一步。
 
+**术语约定：** 本技能里的“界限”特指“功能的可用条件 + 执行后果”，不是泛泛的系统边界名词。
+
+**操作规则：** 当前维度如果暂时说不清，就先在该维度下写 `待确认` 补足缺口，再进入下一维；不能把整一维留空后继续往下走。
+
+### 每一维的最低完成标准
+
+| 维度 | 最低完成标准 | 常见缺漏 |
+| --- | --- | --- |
+| 结构 | 说清分层、模块职责、协作链路；结构回答“层次怎么协作” | 只列模块名，不说谁驱动谁 |
+| 分类 | 列出关键实体/对象/单据/规则对象；分类回答“有哪些业务对象” | 只写抽象名词，如“数据、流程、配置” |
+| 关系 | 至少说清依附关系、影响方向；能说基数时直接说 `1-N`、`N-1` | 只说“有关联”，不说谁影响谁 |
+| 属性 | 属性必须挂到具体实体；只列会影响判断的关键属性 | 只堆字段名，不说明属于谁、是否关键 |
+| 状态 | 说清状态集合、关键迁移、谁触发迁移；无显式状态时要明确说明“该对象以规则/配置生效，无独立状态机” | 只有状态名，没有迁移或约束 |
+| 功能 | 功能要落到动作、目的、作用对象；说明“做什么、为谁做” | 只写“支持新增/编辑/删除” |
+| 界限 | 承接功能结果，同时说“功能引起什么变化”和“什么条件阻止功能” | 只讲风险，不讲可用条件和副作用 |
+
+### 缺信息时的处理
+
+- 不能因为信息不足就跳过某一维
+- 直接写 `待确认`，并指出缺的是哪一个实体、关系、属性、状态、条件
+- 待确认的问题必须是后续设计会真的依赖的，不要泛泛提问
+- 可以带着 `待确认` 进入下一维，但前提是当前维度已经写出最低可验证骨架
+
 ## Quick Reference
 
 在头脑风暴中，先用最少文字输出这 7 项：
@@ -61,6 +87,15 @@ description: Use when brainstorming, clarifying requirements, modeling domains, 
 - 功能会引起哪些属性和状态变化，如何变化
 - 属性和状态如何反过来限制功能是否可用
 
+输出完 7 项后，如仍有关键未知，追加一小段：
+
+```text
+待确认：
+- 
+```
+
+只列真正影响后续设计的未知点。
+
 ## Implementation
 
 ### 输出要求
@@ -69,6 +104,9 @@ description: Use when brainstorming, clarifying requirements, modeling domains, 
 - 优先从现有代码、目录、命名、状态流转中提取认知，不额外制造文档
 - 如果代码已经能表达，就不要重复维护额外说明
 - 如必须补充说明，只写准确、简洁的注释或最小文档
+- 如果后续继续展开设计，始终回到这 7 维补齐；不要在后续轮次里把关系、属性、状态、界限再次讲丢
+- 关系尽量显式写影响方向或基数；属性尽量显式写归属实体；状态尽量显式写迁移动作
+- 功能负责交代动作、目的、作用对象；界限负责交代这些动作带来的变化和被限制的条件
 
 ### 推荐表达模板
 
@@ -96,15 +134,45 @@ description: Use when brainstorming, clarifying requirements, modeling domains, 
 界限：部分支付不会直接触发发货；只有已支付订单才允许发货；退款中和已退款订单必须拦截发货。
 ```
 
+### 好与坏
+
+<Bad>
+
+```markdown
+关系：订单、支付、发货有关联。
+属性：金额、状态、时间。
+状态：待支付、已支付、已发货。
+界限：需要注意异常情况。
+```
+
+</Bad>
+
+<Good>
+
+```markdown
+关系：一个订单可关联多个支付单；支付单状态影响订单状态；订单状态决定发货指令是否允许创建。
+属性：支付单.amount、paidAmount、status；订单.shippableFlag、deliveryStatus。
+状态：支付单从待支付 -> 部分支付 -> 已支付；订单从待支付 -> 待发货 -> 已发货。
+界限：支付确认会更新 paidAmount 和订单状态；仅当订单已支付且未退款时才允许创建发货指令。
+```
+
+</Good>
+
+差别不在字多字少，而在是否能直接支撑后续设计。
+
 ## Common Mistakes
 
 | 错误 | 修正 |
 | --- | --- |
 | 直接给方案，不先建立认知 | 先按 7 个维度输出最小认知骨架 |
 | 只讲功能，不讲实体、状态、界限 | 补齐分类、属性、状态、界限后再继续 |
+| 关系只写“有关联” | 明确谁依附谁、谁影响谁，能写基数就写 |
+| 属性只列字段名，不挂到实体 | 用“实体.属性”表达关键字段 |
+| 状态只有名称，没有迁移 | 补上关键迁移动作和触发条件 |
 | 把“界限”写成泛泛风险 | 明确“什么变化会发生”与“什么条件禁止功能” |
 | 为了说明问题新建很多文档 | 先读代码，能从代码表达就不额外维护 |
 | 因为时间紧就省略认知步骤 | 时间越紧，越要先固定认知顺序 |
+| 第一轮讲清了，后续展开又把关系/属性/状态讲丢 | 后续所有展开都要回到 7 维继续补齐 |
 
 ## Red Flags
 
@@ -113,8 +181,25 @@ description: Use when brainstorming, clarifying requirements, modeling domains, 
 - “大概知道系统怎么跑就够了”
 - “先写功能清单，实体和状态之后再补”
 - “多写一份文档更保险”
+- “关系先模糊写一下，后面再补”
+- “属性不用挂到实体，先列字段名就行”
+- “状态名字有了，迁移以后再说”
 
 这些都表示：你正在跳过核心认知，应立即回到 7 步顺序。
+
+## Completion Check
+
+完成一次核心认知后，至少自查这 7 点：
+
+- 是否 7 维都出现了，没有漏项
+- 结构和分类是否分开表达了“层次协作”和“业务对象”
+- 关系是否至少写清了影响方向；复杂场景是否写了基数
+- 属性是否都挂在具体实体上，而不是孤立字段名
+- 状态是否包含关键迁移；若无状态机，是否明确说明
+- 功能是否能对应到具体动作和目的
+- 界限是否同时覆盖“变化”和“限制条件”
+
+任一项答不上来，就说明认知还不完整。
 
 ## Purpose
 
