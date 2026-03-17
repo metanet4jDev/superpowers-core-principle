@@ -9,6 +9,8 @@ Help turn ideas into fully formed designs and specs through natural collaborativ
 
 Start by understanding the current project context, then ask questions one at a time to refine the idea. Once you understand what you're building, present the design and get user approval.
 
+**REQUIRED SUB-SKILL:** Use `superpowers:core-principle` before brainstorming, clarifying requirements, modeling domains, analyzing business rules, or evaluating behavior changes when key entities, relationships, decisive attributes, state transitions, side effects, or availability conditions are unclear, incomplete, or easy to skip. Apply it exactly: fixed 7-part cognition order, no skipped or blank dimensions, each dimension must reach the minimum verifiable skeleton expected by `core-principle`, write `待确认` in the current dimension before moving on when information is incomplete, and treat `界限` as availability conditions plus execution consequences. Do this before context exploration, clarifying questions, approaches, or design discussion.
+
 <HARD-GATE>
 Do NOT invoke any implementation skill, write any code, scaffold any project, or take any implementation action until you have presented a design and the user has approved it. This applies to EVERY project regardless of perceived simplicity.
 </HARD-GATE>
@@ -21,20 +23,23 @@ Every project goes through this process. A todo list, a single-function utility,
 
 You MUST create a task for each of these items and complete them in order:
 
-1. **Explore project context** — check files, docs, recent commits
-2. **Offer visual companion** (if topic will involve visual questions) — this is its own message, not combined with a clarifying question. See the Visual Companion section below.
-3. **Ask clarifying questions** — one at a time, understand purpose/constraints/success criteria
-4. **Propose 2-3 approaches** — with trade-offs and your recommendation
-5. **Present design** — in sections scaled to their complexity, get user approval after each section
-6. **Write design doc** — save to `docs/superpowers/specs/YYYY-MM-DD-<topic>-design.md` and commit
-7. **Spec review loop** — dispatch spec-document-reviewer subagent with precisely crafted review context (never your session history); fix issues and re-dispatch until approved (max 5 iterations, then surface to human)
-8. **User reviews written spec** — ask user to review the spec file before proceeding
-9. **Transition to implementation** — invoke writing-plans skill to create implementation plan
+1. **Run core-principle gate** — if the request is brainstorming, requirements clarification, domain modeling, business-rule analysis, or behavior-change analysis where key entities, relationships, decisive attributes, state transitions, side effects, or availability conditions are unclear, incomplete, or easy to skip, invoke `superpowers:core-principle` and pass its exact gate before anything else: fixed 7-part cognition order, no skipped or blank dimensions, each dimension reaches the minimum verifiable skeleton, and `待确认` is recorded in the current dimension before moving on
+2. **Explore project context** — check files, docs, recent commits
+3. **Offer visual companion** (if topic will involve visual questions) — this is its own message, not combined with a clarifying question. See the Visual Companion section below.
+4. **Ask clarifying questions** — one at a time, understand purpose/constraints/success criteria
+5. **Propose 2-3 approaches** — with trade-offs and your recommendation
+6. **Present design** — in sections scaled to their complexity, get user approval after each section
+7. **Write design doc** — save to `docs/superpowers/specs/YYYY-MM-DD-<topic>-design.md` and commit
+8. **Spec review loop** — dispatch spec-document-reviewer subagent with precisely crafted review context (never your session history); fix issues and re-dispatch until approved (max 5 iterations, then surface to human)
+9. **User reviews written spec** — ask user to review the spec file before proceeding
+10. **Transition to implementation** — invoke writing-plans skill to create implementation plan
 
 ## Process Flow
 
 ```dot
 digraph brainstorming {
+    "Brainstorming / requirements /\ndomain modeling / business-rule /\nbehavior-change request with\nunclear, incomplete, or easy-to-skip\nkey entities, relationships, decisive\nattributes, state transitions, side\neffects, or availability conditions?" [shape=diamond];
+    "Invoke core-principle\n(7 dimensions, no blanks,\nminimum skeleton, `待确认`\nbefore moving on)" [shape=box];
     "Explore project context" [shape=box];
     "Visual questions ahead?" [shape=diamond];
     "Offer Visual Companion\n(own message, no other content)" [shape=box];
@@ -48,6 +53,9 @@ digraph brainstorming {
     "User reviews spec?" [shape=diamond];
     "Invoke writing-plans skill" [shape=doublecircle];
 
+    "Brainstorming / requirements /\ndomain modeling / business-rule /\nbehavior-change request with\nunclear, incomplete, or easy-to-skip\nkey entities, relationships, decisive\nattributes, state transitions, side\neffects, or availability conditions?" -> "Invoke core-principle\n(7 dimensions, no blanks,\nminimum skeleton, `待确认`\nbefore moving on)" [label="yes"];
+    "Brainstorming / requirements /\ndomain modeling / business-rule /\nbehavior-change request with\nunclear, incomplete, or easy-to-skip\nkey entities, relationships, decisive\nattributes, state transitions, side\neffects, or availability conditions?" -> "Explore project context" [label="no"];
+    "Invoke core-principle\n(7 dimensions, no blanks,\nminimum skeleton, `待确认`\nbefore moving on)" -> "Explore project context";
     "Explore project context" -> "Visual questions ahead?";
     "Visual questions ahead?" -> "Offer Visual Companion\n(own message, no other content)" [label="yes"];
     "Visual questions ahead?" -> "Ask clarifying questions" [label="no"];
@@ -72,6 +80,10 @@ digraph brainstorming {
 
 **Understanding the idea:**
 
+- Before context exploration or clarifying questions, decide whether `core-principle` applies. It applies to brainstorming, clarifying requirements, modeling domains, analyzing business rules, or evaluating behavior changes when key entities, relationships, decisive attributes, state transitions, side effects, or availability conditions are unclear, incomplete, or easy to skip.
+- When `core-principle` applies, follow it exactly before moving on: structure, classification, relationships, attributes, states, functions, `界限`; no skipped or blank dimensions; each dimension must reach the minimum verifiable skeleton; if the current dimension is incomplete, write `待确认` there before entering the next one.
+- In this context, `界限` means availability conditions plus execution consequences, not a generic architecture boundary label.
+- Do not rationalize this away because the user wants speed, brevity, or a "rough brainstorm". Those are exactly the situations where missing states and boundaries creates bad designs.
 - Check out the current project state first (files, docs, recent commits)
 - Before asking detailed questions, assess scope: if the request describes multiple independent subsystems (e.g., "build a platform with chat, file storage, billing, and analytics"), flag this immediately. Don't spend questions refining details of a project that needs to be decomposed first.
 - If the project is too large for a single spec, help the user decompose into sub-projects: what are the independent pieces, how do they relate, what order should they be built? Then brainstorm the first sub-project through the normal design flow. Each sub-project gets its own spec → plan → implementation cycle.
@@ -137,6 +149,7 @@ Wait for the user's response. If they request changes, make them and re-run the 
 
 ## Key Principles
 
+- **Core cognition first** - Use `core-principle` before brainstorming whenever key entities, relationships, decisive attributes, state transitions, side effects, or availability conditions are unclear, incomplete, or easy to skip; pass its exact gate before continuing
 - **One question at a time** - Don't overwhelm with multiple questions
 - **Multiple choice preferred** - Easier to answer than open-ended when possible
 - **YAGNI ruthlessly** - Remove unnecessary features from all designs
