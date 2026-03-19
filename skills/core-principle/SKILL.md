@@ -61,9 +61,11 @@ description: Use when key entities, relationships, decisive attributes, state tr
 ```
 
 `界限` 必须同时覆盖：
+- 输入契约
 - 可用条件和不可用条件
-- 执行带来的关系、属性、状态变化
-- 输出和异常场景
+- 决策规则、执行带来的关系、属性、状态变化
+- 输出
+- 异常场景
 
 ## Minimum Bar
 
@@ -75,7 +77,7 @@ description: Use when key entities, relationships, decisive attributes, state tr
 | 属性 | 属性必须挂到具体实体；列出会影响判断的关键属性，并说明类型、唯一性、可编辑性、必填、长度、精度等核心要点 | 只堆字段名，不说明属于谁、为什么关键、约束是什么 |
 | 状态 | 说清状态、迁移、触发条件、约束 | 只有状态名，没有迁移或约束 |
 | 功能 | 说清功能点的作用对象、动作、目的；每个功能点应能对应一个明确的可执行任务 | 只写“支持新增/编辑/删除” |
-| 界限 | 使用 `given / when / then / exception` 说清输入前提、可用条件、结果变化、输出和异常 | 只讲风险，不讲条件、变化、输出和异常 |
+| 界限 | 使用 `given / when / then / exception` 说清输入契约、可用条件、决策规则、结果变化、输出和异常 | 只讲风险，不讲条件、变化、输出和异常 |
 
 ## Handling Unknowns
 
@@ -179,8 +181,8 @@ description: Use when key entities, relationships, decisive attributes, state tr
 ### Diagrams (Optional)
 
 - 只有在用户未禁止图表，且纯文字不足以说清结构或交互时，再补图
-- 结构复杂、跨三个以上独立子系统、或交互链路不易口头说明时，才考虑补图
-- 如果补图，优先使用当前仓库或团队已经接受的图表方式
+- 结构复杂、跨三个以上独立子系统、或交互链路不易口头说明时，必须补图
+- 如果补图，优先使用planumul，如果需要可参考：https://plantuml.com/zh/
 
 ### Subsystem Template
 
