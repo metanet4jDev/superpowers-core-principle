@@ -111,13 +111,17 @@ description: Use when one task spans 2+ Git repositories and requires a combined
 9. 为每个仓库创建独立分支与 worktree：
    - 分支名：`<change_type>/<task_name_en>-<repo_slug>`。
    - 必须仓库独立，禁止共用同一分支上下文。
-10. 在各自 worktree 中实现改动。
-11. 按仓库独立验证（仅以下两类）：
+10. 对 worktree 根目录（`_tasks`）执行 `AGENTS.md` 补齐检查：
+   - 若 `<tasks_root>/AGENTS.md` 不存在，则从“当前工作根目录”的 `AGENTS.md` 复制到 `<tasks_root>/AGENTS.md`。
+   - `tasks_root` 取值为 `<anchor>/_tasks`（例如 `/home/haodev/worksapces/_tasks`）。
+   - 若当前工作根目录缺少 `AGENTS.md`，在报告中记录 warning，不阻塞后续流程。
+11. 在各自 worktree 中实现改动。
+12. 按仓库独立验证（仅以下两类）：
    - `mvn ... compile -DskipTests`
    - `mvn ... package -DskipTests`
-12. 按仓库独立提交，提交信息遵循 Conventional Commits。
-13. 若 `parent_repo` 产生子仓库指针变更，再单独提交父仓库。
-14. 输出最终报告：受影响仓库、编译命令、提交 ID。
+13. 按仓库独立提交，提交信息遵循 Conventional Commits。
+14. 若 `parent_repo` 产生子仓库指针变更，再单独提交父仓库。
+15. 输出最终报告：受影响仓库、编译命令、提交 ID。
 
 ## 命令模板
 
@@ -156,6 +160,23 @@ wt_path="$task_root/$repo_rel"
 
 mkdir -p "$(dirname "$wt_path")"
 git -C "$repo_abs" worktree add "$wt_path" -b "$branch_name" "$base_branch"
+```
+
+### 若 `_tasks` 缺失则补齐 AGENTS.md
+
+```bash
+current_root="$(pwd)"
+source_agents="$current_root/AGENTS.md"
+tasks_root="/home/haodev/worksapces/_tasks"
+target_agents="$tasks_root/AGENTS.md"
+
+if [ ! -f "$target_agents" ]; then
+  if [ -f "$source_agents" ]; then
+    cp "$source_agents" "$target_agents"
+  else
+    echo "WARN: missing $source_agents, skip AGENTS.md copy for $tasks_root"
+  fi
+fi
 ```
 
 ### Maven 编译验证（禁止测试）
@@ -239,6 +260,7 @@ git rev-parse --short HEAD
 - 分支命名与提交信息统一遵循 Conventional Commits。
 - 仓库级分支/基线独立决策。
 - 仓库级独立验证与提交。
+- 若 `_tasks` 目录缺少 `AGENTS.md`，从当前工作根目录复制同名文件补齐。
 - 最终输出仓库级编译命令和提交 ID。
 
 ## 快速参考
@@ -253,6 +275,7 @@ git rev-parse --short HEAD
 | 无有效公共锚点 | 切换到 absolute-layout。 |
 | 某仓库有基线覆盖 | 仅覆盖该仓库。 |
 | 请求基线分支不存在 | 回退 `origin/HEAD` 默认分支并记录。 |
+| `_tasks` 目录缺少 `AGENTS.md` | 从当前工作根目录复制 `AGENTS.md` 到 `_tasks` 目录；若源文件不存在则记录 warning。 |
 | 父仓库无指针变化 | 报告父仓库提交为 `N/A`。 |
 | 用户要求不提问且工作区脏 | 默认忽略无关改动，仅暂存任务文件，并在报告说明。 |
 
@@ -262,5 +285,6 @@ git rev-parse --short HEAD
 - 分支名仍用 `hotfix/...`，而不是 `<type>/<task_name_en>-<repo_slug>`。
 - 多个仓库误用同一 worktree 目标路径。
 - 未在报告中记录基线分支 fallback。
+- `_tasks` 缺少 `AGENTS.md` 时未执行补齐或未记录 warning。
 - 着急提交时把无关脏改动一起暂存。
 - Maven 命令漏掉 `-s /home/haodev/.m2/whyt-server-settings-linux.xml`。
