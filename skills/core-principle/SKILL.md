@@ -61,10 +61,9 @@ description: Use when key entities, relationships, decisive attributes, state tr
 ```
 
 `界限` 必须同时覆盖：
-- 输入契约
-- 可用条件和不可用条件
-- 决策规则、执行带来的关系、属性、状态变化
-- 输出
+- `given`：输入契约 + 涉及实体关系 + 关键属性 + 初始状态
+- `when`：按不同输入与当前实体关系/属性/状态列出决策场景与决策结果
+- `then`：输出 + 实体关系变化 + 属性变化 + 状态变化
 - 异常场景
 
 ## Minimum Bar
@@ -76,8 +75,16 @@ description: Use when key entities, relationships, decisive attributes, state tr
 | 关系 | 说清依附关系、影响方向；能写基数就写 `1-N`、`N-1`；多子系统场景下说清依赖谁、被谁依赖 | 只说“有关联”，不说谁影响谁、不说跨子系统依赖 |
 | 属性 | 属性必须挂到具体实体；列出会影响判断的关键属性，并说明类型、唯一性、可编辑性、必填、长度、精度等核心要点 | 只堆字段名，不说明属于谁、为什么关键、约束是什么 |
 | 状态 | 说清状态、迁移、触发条件、约束 | 只有状态名，没有迁移或约束 |
-| 功能 | 说清功能点的作用对象、动作、目的；每个功能点应能对应一个明确的可执行任务 | 只写“支持新增/编辑/删除” |
-| 界限 | 使用 `given / when / then / exception` 说清输入契约、可用条件、决策规则、结果变化、输出和异常 | 只讲风险，不讲条件、变化、输出和异常 |
+| 功能 | 说清功能点的作用对象、动作、目的，并写清执行路径（主路径/失败路径/终止条件） | 只写“支持新增/编辑/删除” |
+| 界限 | 使用 `given / when / then / exception` 说清输入契约、决策依据、结果变化和异常；`given/when/then` 都要有实体关系、属性、状态锚点；`when` 必须按场景列出决策结果 | 只讲风险，不讲条件、变化、输出和异常 |
+
+### Consistency Check（跨章节一致性）
+
+在进入方案/实现前，必须完成以下一致性校验：
+
+- 在 `given / when / then / exception` 中出现的关键实体、关系、属性、状态，必须能在“分类 / 关系 / 属性 / 状态”中定位到定义
+- 在“属性”中标记为关键的字段，必须至少在一个功能点的 `when` 或 `then` 中体现判断或变化作用
+- 若出现“功能点引用但未定义”的实体、关系、属性、状态，必须回补定义或标记 `待确认`，不得直接进入实现
 
 ## Handling Unknowns
 
@@ -92,6 +99,8 @@ description: Use when key entities, relationships, decisive attributes, state tr
 - 如果真实命名尚未确认，不要伪装成现成字段名；先写业务含义，再标 `字段名待确认`
 - 如果当前轮次只有用户输入、没有实现锚点，就只写业务含义与规则，不补实现细节猜测
 - 如果关键属性的类型、唯一性、可编辑性、必填、长度、精度还不清楚，且它们会影响判断、校验、状态迁移或输出，就必须优先提问或标成 `待确认`
+- 涉及默认值、阈值、TTL、重试次数、超时预算、SLA 等关键数字时，必须标注来源：`代码` / `配置` / `历史观测` / `待确认`
+- 未标注来源的精确数字仅视为讨论草案，不能作为最终设计结论
 
 ## Implementation
 
@@ -107,6 +116,7 @@ description: Use when key entities, relationships, decisive attributes, state tr
 - 后续继续展开设计时，始终回到这 7 维补齐，不丢关系、属性、状态与界限
 - 用户明确要求“不额外写文档”或“不要画图”时，直接遵从，不要因为技能默认建议而补文档或补图
 - 当属性核心要点会影响规则判断、接口契约、校验逻辑、状态迁移、输出或存储设计时，应在头脑风暴阶段通过提问补齐；补不齐就标 `待确认`
+- 属性说明允许按实体类型裁剪最小集：业务实体优先说明类型/唯一性/可编辑性/必填/长度精度；运行参数优先说明类型/默认值/取值范围/生效范围；接口契约优先说明字段名/类型/必填/兼容约束
 
 ### Design Doc Structure (When Needed)
 
@@ -114,10 +124,12 @@ description: Use when key entities, relationships, decisive attributes, state tr
 
 - 先按功能模块划分章节，只覆盖本次任务真正受影响的模块
 - 每个模块下，先写“实体与属性”，再写“关系与状态”，最后逐个展开“功能点”
-- 每个功能点都应对应一个明确的可执行任务
-- `功能` 只负责说明“做什么、为谁做、目的是什么”
+- `功能` 只负责说明“做什么、为谁做、目的是什么、如何执行（主路径/失败路径/终止条件）”
 - `界限` 只负责说明“什么条件下能做 / 不能做，做了会变什么，输出什么，异常是什么”
 - `given / when / then / exception` 只放在 `界限` 中，不要和 `功能` 重复
+- `given` 必须写清输入契约，并点明涉及实体关系、关键属性和初始状态
+- `when` 必须按场景写清决策规则：每个场景都要说明输入、实体关系、属性值、状态值、决策结果
+- `then` 必须写清输出，并明确实体关系变化、属性变化、状态变化
 
 ### Multi-Subsystem Decomposition (When Needed)
 
@@ -163,7 +175,10 @@ description: Use when key entities, relationships, decisive attributes, state tr
   - 动作：
   - 目的：
   - 作用对象：
-  - 对应任务：
+  - 执行路径：
+    - 主路径：
+    - 失败路径：
+    - 终止条件：
 
 - 参与实体：
   - 实体：
@@ -172,17 +187,19 @@ description: Use when key entities, relationships, decisive attributes, state tr
   - 状态：
 
 - 界限：
-  - given：
-  - when：
-  - then：
+  - given：（输入契约 + 实体关系 + 关键属性 + 初始状态）
+  - when：（按场景列出：输入 + 实体关系 + 属性值 + 状态值 + 决策结果）
+  - then：（输出 + 实体关系变化 + 属性变化 + 状态变化）
   - exception：
 ```
 
-### Diagrams (Optional)
+### Diagrams (Conditional Required)
 
-- 只有在用户未禁止图表，且纯文字不足以说清结构或交互时，再补图
-- 结构复杂、跨三个以上独立子系统、或交互链路不易口头说明时，必须补图
-- 如果补图，优先使用planumul，如果需要可参考：https://plantuml.com/zh/
+- 在用户未禁止图表的前提下，满足下列任一条件时必须补图
+- 当单条关键流程跨 `>=3` 个子系统，或跨 `>=3` 个功能模块协作时，必须提供时序图
+- 当状态流程存在多分支、回退、重试、并行汇合等复杂情形时，必须提供状态图
+- 时序图与状态图统一使用 `PlantUML`：https://plantuml.com/zh/
+- 若用户明确要求不画图，需在文字中补齐等价时序与状态说明，并标注“图示待补”
 
 ### Subsystem Template
 
@@ -230,15 +247,21 @@ description: Use when key entities, relationships, decisive attributes, state tr
 - 动作：阻止后续履约；目的：避免退款后继续履约；作用对象：Order
 
 界限：
-- given：订单已支付，且尚未完成履约
-- when：退款金额不超过实付金额，支付渠道允许退款
-- then：Payment 进入 `refunding` 或 `refunded`，Order 进入 `blocked`，通知模块发送退款结果
+- given：实体关系为 `RefundRequest -> Payment -> Order`；`Payment.amountPaid`、`RefundRequest.amount` 可用；`Payment` 处于 `paid` 且 `Order` 未完成履约
+- when：
+  - 场景1：输入为退款请求；关系为 `RefundRequest -> Payment -> Order`；属性满足 `RefundRequest.amount <= Payment.amountPaid`；状态为 `Payment=paid`
+    - 决策结果：允许发起退款，进入 `Payment=refunding`
+  - 场景2：输入为退款请求；关系不变；属性满足 `RefundRequest.amount > Payment.amountPaid`
+    - 决策结果：拒绝退款，保持原状态并返回金额超限
+  - 场景3：输入为退款请求；关系不变；属性满足金额条件；状态为 `Payment=refunding/refunded`
+    - 决策结果：判定重复退款，拒绝并返回幂等错误
+- then：输出退款处理结果；`Payment.refundStatus` 变为 `refunding/refunded`；`Order.fulfillmentStatus` 变为 `blocked`；通知模块发送结果
 - exception：渠道拒绝、重复退款、金额超限
 ```
 
 这里：
-- `功能` 负责说明“系统要做什么、为了什么、作用于谁”
-- `界限` 负责说明“什么条件下能做、做了会变什么、输出什么、哪里会失败”
+- `功能` 负责说明“系统要做什么、为了什么、作用于谁，以及执行路径”
+- `界限` 负责说明“什么条件下能做、基于什么判断、做了会引起哪些关系/属性/状态变化、哪里会失败”
 
 如果要把它落成设计文档，可以继续写成：
 
@@ -270,7 +293,10 @@ description: Use when key entities, relationships, decisive attributes, state tr
   - 动作：重算订单履约资格
   - 目的：保证退款结果与履约状态一致
   - 作用对象：Order
-  - 对应任务：实现退款回调后的履约拦截判断
+  - 执行路径：
+    - 主路径：接收退款回调 -> 校验金额与渠道状态 -> 重算履约资格
+    - 失败路径：校验失败或渠道拒绝 -> 记录失败原因并保持原状态
+    - 终止条件：生成新的履约结论并完成通知
 
 - 参与实体：
   - 实体：Order、Payment、RefundRequest
@@ -279,9 +305,15 @@ description: Use when key entities, relationships, decisive attributes, state tr
   - 状态：paid、refunding、refunded、blocked
 
 - 界限：
-  - given：订单已支付，且尚未完成履约
-  - when：退款金额不超过实付金额，支付渠道允许退款
-  - then：Payment 进入 `refunding` 或 `refunded`，Order 进入 `blocked`，通知模块发送退款结果
+  - given：实体关系为 `RefundRequest -> Payment -> Order`；`Payment.amountPaid`、`RefundRequest.amount` 可用；`Payment` 初始状态为 `paid` 且 `Order` 未完成履约
+  - when：
+    - 场景1：输入为退款请求；关系为 `RefundRequest -> Payment -> Order`；属性满足 `RefundRequest.amount <= Payment.amountPaid`；状态为 `Payment=paid`
+      - 决策结果：执行退款流程并更新 `Payment.refundStatus`
+    - 场景2：输入为退款请求；关系不变；属性满足 `RefundRequest.amount > Payment.amountPaid`
+      - 决策结果：拒绝退款，返回金额超限
+    - 场景3：输入为退款请求；关系不变；属性满足金额条件；状态为 `Payment=refunding/refunded`
+      - 决策结果：判定重复请求，拒绝并返回重复退款
+  - then：输出退款处理结果；`Payment.refundStatus` 变为 `refunding/refunded`；`Order.fulfillmentStatus` 变为 `blocked`；通知模块发送结果
   - exception：渠道拒绝、重复退款、金额超限
 ```
 
@@ -296,6 +328,9 @@ description: Use when key entities, relationships, decisive attributes, state tr
 | 属性只列字段名，不说明类型、唯一性、可编辑性、必填、长度、精度 | 把属性核心要点写清；会影响设计但还不清楚的直接提问或标 `待确认` |
 | 状态只有名称，没有迁移 | 补上迁移动作、触发条件和约束 |
 | 把 `given / when / then / exception` 同时写在 `功能` 和 `界限` | `功能` 只写动作、目的、对象；`given / when / then / exception` 只放在 `界限` |
+| `given` 没写清输入基于哪些实体关系、属性和初始状态 | 在 `given` 明确“谁参与、关系是什么、关键属性是什么、当前状态是什么” |
+| `when` 只写一句“按规则判断”，没有按场景拆开 | 在 `when` 按场景列出“输入 + 实体关系 + 属性值 + 状态值 + 决策结果” |
+| `then` 只写“成功/失败”，不写关系、属性、状态变化 | 在 `then` 明确输出和变化项；若不变化也要显式声明 |
 | 把“界限”写成泛泛风险 | 明确可用条件、结果变化、输出和异常 |
 | 新系统明明需要拆子系统，却直接把所有内容混成一个系统讲 | 先做子系统拆分，再为每个子系统补齐它在总系统中的位置和依赖关系 |
 | 脱离代码或文档直接发明字段与状态 | 明确锚点；没有锚点就标 `待确认` |
@@ -312,6 +347,9 @@ description: Use when key entities, relationships, decisive attributes, state tr
 - “没有代码锚点也可以先把字段写死”
 - “字段名先按常识脑补，后面再改”
 - “关系先模糊写一下，后面再补”
+- “given 先写前置条件，实体关系/属性/状态后面再说”
+- “when 先写结论，判断依据以后再补”
+- “then 先写成功返回，属性和状态变化可以省略”
 
 这些都表示：你正在跳过核心认知，应立即回到 7 步顺序。
 
@@ -325,6 +363,11 @@ description: Use when key entities, relationships, decisive attributes, state tr
 - 是否已经足以支撑后续方案、设计或实现，而不是停留在泛泛描述
 - 如果当前任务本来就需要沉淀设计文档，是否已经按“功能模块 -> 实体与属性 / 关系与状态 / 功能点”组织，并且每个功能点都覆盖了 `功能`、`参与实体`、`界限`
 - 如果是多子系统新系统，是否已经先完成子系统拆分，并且每个子系统都说明了它在总系统中的位置、它依赖谁、谁依赖它
+- 每个功能点的 `given / when / then` 是否都明确锚定了实体关系、关键属性与相关状态
+- 每个功能点的 `when` 是否按场景列清不同输入、关系/属性/状态取值与对应决策结果
+- 每个功能点的 `then` 是否明确写出实体关系变化、属性变化、状态变化（或明确不变化）
+- 关键数字（默认值、阈值、TTL、重试、超时、SLA）是否都标注了来源
+- 跨 `>=3` 子系统或 `>=3` 模块的流程是否提供 `PlantUML` 时序图；复杂状态流程是否提供 `PlantUML` 状态图
 
 ## Purpose
 
