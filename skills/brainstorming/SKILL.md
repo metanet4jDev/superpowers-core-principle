@@ -1,13 +1,13 @@
 ---
 name: brainstorming
-description: "You MUST use this before any creative work - creating features, building components, adding functionality, or modifying behavior. Explores user intent, requirements and design before implementation."
+description: "Use when a new feature, system, component, or behavior change needs clarification before implementation."
 ---
 
 # Brainstorming Ideas Into Designs
 
 Help turn ideas into fully formed designs and specs through natural collaborative dialogue.
 
-Start by understanding the current project context, then ask questions one at a time to refine the idea. Once you understand what you're building, present the design and get user approval.
+Start by understanding the current project context, or if this is greenfield work, start by decomposing the system and clarifying its boundaries. Then ask questions one at a time to refine the idea. Once you understand what you're building, present the design and get user approval.
 
 **REQUIRED SUB-SKILL:** Use `superpowers:core-principle` before brainstorming, clarifying requirements, modeling domains, analyzing business rules, or evaluating behavior changes when key entities, relationships, decisive attributes, state transitions, side effects, or availability conditions are unclear, incomplete, or easy to skip. Apply it exactly: fixed 7-part cognition order, no skipped or blank dimensions, each dimension must reach the minimum verifiable skeleton expected by `core-principle`, write `待确认` in the current dimension before moving on when information is incomplete, and treat `界限` as availability conditions plus execution consequences. Do this before context exploration, clarifying questions, approaches, or design discussion.
 
@@ -24,12 +24,12 @@ Every project goes through this process. A todo list, a single-function utility,
 You MUST create a task for each of these items and complete them in order:
 
 1. **Run core-principle gate** — if the request is brainstorming, requirements clarification, domain modeling, business-rule analysis, or behavior-change analysis where key entities, relationships, decisive attributes, state transitions, side effects, or availability conditions are unclear, incomplete, or easy to skip, invoke `superpowers:core-principle` and pass its exact gate before anything else: fixed 7-part cognition order, no skipped or blank dimensions, each dimension reaches the minimum verifiable skeleton, and `待确认` is recorded in the current dimension before moving on
-2. **Explore project context** — check files, docs, recent commits
+2. **Explore project context** — when there is an existing project, check files, docs, recent commits; for greenfield system design with no existing repo context, go straight to system decomposition and core cognition
 3. **Offer visual companion** (if topic will involve visual questions) — this is its own message, not combined with a clarifying question. See the Visual Companion section below.
-4. **Ask clarifying questions** — one at a time, understand purpose/constraints/success criteria
+4. **Ask clarifying questions** — one at a time, understand purpose/constraints/success criteria; when the topic is a new multi-subsystem system, prioritize subsystem boundary and dependency questions before field details; when decisive attribute details are missing, prioritize focused questions about type, uniqueness, editability, requiredness, length, and precision
 5. **Propose 2-3 approaches** — with trade-offs and your recommendation
 6. **Present design** — in sections scaled to their complexity, get user approval after each section
-7. **Write design doc** — save to `docs/superpowers/specs/YYYY-MM-DD-<topic>-design.md` and commit
+7. **Write design doc** — save to `docs/superpowers/specs/YYYY-MM-DD-<topic>-design.md` and commit; for new multi-subsystem systems, write the total-system design first, then decide which subsystem gets its own follow-up spec
 8. **Spec review loop** — dispatch spec-document-reviewer subagent with precisely crafted review context (never your session history); fix issues and re-dispatch until approved (max 1 iterations, then surface to human)
 9. **User reviews written spec** — ask user to review the spec file before proceeding
 10. **Transition to implementation** — invoke writing-plans skill to create implementation plan
@@ -83,10 +83,15 @@ digraph brainstorming {
 - Before context exploration or clarifying questions, decide whether `core-principle` applies. It applies to brainstorming, clarifying requirements, modeling domains, analyzing business rules, or evaluating behavior changes when key entities, relationships, decisive attributes, state transitions, side effects, or availability conditions are unclear, incomplete, or easy to skip.
 - When `core-principle` applies, follow it exactly before moving on: structure, classification, relationships, attributes, states, functions, `界限`; no skipped or blank dimensions; each dimension must reach the minimum verifiable skeleton; if the current dimension is incomplete, write `待确认` there before entering the next one.
 - In this context, `界限` means availability conditions plus execution consequences, not a generic architecture boundary label.
+- If missing attribute details would affect validation, storage, state transitions, availability conditions, outputs, or document structure, ask focused clarification questions before treating the design as stable. Cover type, uniqueness, editability, requiredness, length, and precision.
+- When the user already knows the result should become a design doc, shape the questions and later presentation around the target structure. For rule-heavy work, prefer `功能模块 -> 实体与属性 / 关系与状态 / 功能点` so the answers map directly into the final document.
 - Do not rationalize this away because the user wants speed, brevity, or a "rough brainstorm". Those are exactly the situations where missing states and boundaries creates bad designs.
-- Check out the current project state first (files, docs, recent commits)
+- Check out the current project state first (files, docs, recent commits) when working in an existing project; if this is greenfield system design with no repo context, go straight to system decomposition and core cognition
 - Before asking detailed questions, assess scope: if the request describes multiple independent subsystems (e.g., "build a platform with chat, file storage, billing, and analytics"), flag this immediately. Don't spend questions refining details of a project that needs to be decomposed first.
-- If the project is too large for a single spec, help the user decompose into sub-projects: what are the independent pieces, how do they relate, what order should they be built? Then brainstorm the first sub-project through the normal design flow. Each sub-project gets its own spec → plan → implementation cycle.
+- If the project is too large for a single spec, help the user decompose into sub-projects: what are the independent pieces, how do they relate, what order should they be built?
+- If the user is creating a brand-new system and explicitly wants subsystem-level understanding, do NOT jump straight to only the first sub-project. First complete the overall subsystem split and establish per-subsystem core cognition.
+- For each subsystem in that split, make sure the discussion covers: its role in the total system, which other subsystems exist around it, which subsystems it depends on, which subsystems depend on it, and how those relationships work.
+- After the overall split and per-subsystem cognition are stable, either continue with the full system-level design doc or choose the first subsystem for deeper design, depending on the user's goal. Each sub-project still gets its own spec → plan → implementation cycle when implementation planning begins.
 - For appropriately-scoped projects, ask questions one at a time to refine the idea
 - Prefer multiple choice questions when possible, but open-ended is fine too
 - Only one question per message - if a topic needs more exploration, break it into multiple questions
@@ -125,6 +130,8 @@ digraph brainstorming {
 
 - Write the validated design (spec) to `docs/superpowers/specs/YYYY-MM-DD-<topic>-design.md`
   - (User preferences for spec location override this default)
+- If the work starts as a new multi-subsystem system design, prefer a document shape like `总系统概览 -> 子系统划分 -> 子系统依赖总览 -> 子系统逐个展开`
+- For new multi-subsystem systems, finish the total-system design doc first; only after that decide whether a specific subsystem needs its own follow-up spec and implementation cycle
 - Use elements-of-style:writing-clearly-and-concisely skill if available
 - Commit the design document to git
 
