@@ -64,7 +64,7 @@ description: Use when key entities, relationships, decisive attributes, state tr
 - `given`：输入契约 + 涉及实体关系 + 关键属性 + 初始状态
 - `when`：按不同输入与当前实体关系/属性/状态列出决策场景与决策结果
 - `then`：输出 + 实体关系变化 + 属性变化 + 状态变化
-- 异常场景
+- `exception`：异常场景
 
 ## Minimum Bar
 
@@ -130,6 +130,7 @@ description: Use when key entities, relationships, decisive attributes, state tr
 - `given` 必须写清输入契约，并点明涉及实体关系、关键属性和初始状态
 - `when` 必须按场景写清决策规则：每个场景都要说明输入、实体关系、属性值、状态值、决策结果
 - `then` 必须写清输出，并明确实体关系变化、属性变化、状态变化
+- `when` 与 `then` 的场景编号应一一对应，避免“拒绝场景”与“成功变更”混写
 
 ### Multi-Subsystem Decomposition (When Needed)
 
@@ -245,17 +246,21 @@ description: Use when key entities, relationships, decisive attributes, state tr
 - 动作：发起退款；目的：提交退款申请；作用对象：Payment、RefundRequest
 - 动作：接收退款回调；目的：同步渠道退款结果；作用对象：Payment
 - 动作：阻止后续履约；目的：避免退款后继续履约；作用对象：Order
+- 执行路径：主路径为“受理退款请求 -> 校验金额与状态 -> 更新退款状态 -> 通知结果”；失败路径为“校验失败/渠道拒绝 -> 返回失败并保持状态”；终止条件为“返回明确处理结果（成功/拒绝）”
 
 界限：
 - given：实体关系为 `RefundRequest -> Payment -> Order`；`Payment.amountPaid`、`RefundRequest.amount` 可用；`Payment` 处于 `paid` 且 `Order` 未完成履约
 - when：
   - 场景1：输入为退款请求；关系为 `RefundRequest -> Payment -> Order`；属性满足 `RefundRequest.amount <= Payment.amountPaid`；状态为 `Payment=paid`
     - 决策结果：允许发起退款，进入 `Payment=refunding`
-  - 场景2：输入为退款请求；关系不变；属性满足 `RefundRequest.amount > Payment.amountPaid`
+  - 场景2：输入为退款请求；关系不变；属性满足 `RefundRequest.amount > Payment.amountPaid`；状态为 `Payment=paid`
     - 决策结果：拒绝退款，保持原状态并返回金额超限
   - 场景3：输入为退款请求；关系不变；属性满足金额条件；状态为 `Payment=refunding/refunded`
     - 决策结果：判定重复退款，拒绝并返回幂等错误
-- then：输出退款处理结果；`Payment.refundStatus` 变为 `refunding/refunded`；`Order.fulfillmentStatus` 变为 `blocked`；通知模块发送结果
+- then：
+  - 场景1：输出“退款受理成功”；实体关系不变（仍为 `RefundRequest -> Payment -> Order`）；`Payment.refundStatus` 从 `paid` 变为 `refunding/refunded`；`Order.fulfillmentStatus` 变为 `blocked`
+  - 场景2：输出“金额超限”；实体关系不变；`Payment.refundStatus` 保持 `paid`；`Order.fulfillmentStatus` 保持原值
+  - 场景3：输出“重复退款”；实体关系不变；`Payment.refundStatus` 保持 `refunding/refunded`；`Order.fulfillmentStatus` 保持原值
 - exception：渠道拒绝、重复退款、金额超限
 ```
 
@@ -309,11 +314,14 @@ description: Use when key entities, relationships, decisive attributes, state tr
   - when：
     - 场景1：输入为退款请求；关系为 `RefundRequest -> Payment -> Order`；属性满足 `RefundRequest.amount <= Payment.amountPaid`；状态为 `Payment=paid`
       - 决策结果：执行退款流程并更新 `Payment.refundStatus`
-    - 场景2：输入为退款请求；关系不变；属性满足 `RefundRequest.amount > Payment.amountPaid`
+    - 场景2：输入为退款请求；关系不变；属性满足 `RefundRequest.amount > Payment.amountPaid`；状态为 `Payment=paid`
       - 决策结果：拒绝退款，返回金额超限
     - 场景3：输入为退款请求；关系不变；属性满足金额条件；状态为 `Payment=refunding/refunded`
       - 决策结果：判定重复请求，拒绝并返回重复退款
-  - then：输出退款处理结果；`Payment.refundStatus` 变为 `refunding/refunded`；`Order.fulfillmentStatus` 变为 `blocked`；通知模块发送结果
+  - then：
+    - 场景1：输出“退款受理成功”；实体关系不变（`RefundRequest -> Payment -> Order`）；`Payment.refundStatus` 从 `paid` 变为 `refunding/refunded`；`Order.fulfillmentStatus` 变为 `blocked`
+    - 场景2：输出“金额超限”；实体关系不变；`Payment.refundStatus` 保持 `paid`；`Order.fulfillmentStatus` 保持原值
+    - 场景3：输出“重复退款”；实体关系不变；`Payment.refundStatus` 保持 `refunding/refunded`；`Order.fulfillmentStatus` 保持原值
   - exception：渠道拒绝、重复退款、金额超限
 ```
 
@@ -365,6 +373,7 @@ description: Use when key entities, relationships, decisive attributes, state tr
 - 如果是多子系统新系统，是否已经先完成子系统拆分，并且每个子系统都说明了它在总系统中的位置、它依赖谁、谁依赖它
 - 每个功能点的 `given / when / then` 是否都明确锚定了实体关系、关键属性与相关状态
 - 每个功能点的 `when` 是否按场景列清不同输入、关系/属性/状态取值与对应决策结果
+- 每个功能点的 `when` 与 `then` 是否按同一场景编号一一对应
 - 每个功能点的 `then` 是否明确写出实体关系变化、属性变化、状态变化（或明确不变化）
 - 关键数字（默认值、阈值、TTL、重试、超时、SLA）是否都标注了来源
 - 跨 `>=3` 子系统或 `>=3` 模块的流程是否提供 `PlantUML` 时序图；复杂状态流程是否提供 `PlantUML` 状态图
