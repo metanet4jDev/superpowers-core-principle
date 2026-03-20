@@ -1,32 +1,32 @@
 ---
 name: core-principle
-description: Use when key entities, relationships, decisive attributes, state transitions, side effects, or availability conditions are unclear, easy to skip, or likely to be misread before proposing solutions or changing behavior.
+description: Use when before or during brainstorming, while exploring an existing codebase to understand architecture or modules, before implementing architecture/feature/system/component/behavior changes, or when the user explicitly asks to build or update core understanding.
 ---
 
 # Core Principle
 
 ## Overview
 
-在进入方案、设计或实现前，先建立系统的核心认知骨架。
+在代码库探索、头脑风暴前与过程中，以及进入方案、设计或实现前，持续建立并更新系统的核心认知骨架。
 
 **核心原则：** 认知必须简洁、精确、可验证，并按固定顺序建立，避免在压力下直接跳到方案、实现或结论。
 
-**与 `brainstorming` 的关系：** 本技能通常作为 `brainstorming` 的前置认知 gate。先补齐核心认知，再进入澄清、方案和设计讨论。
+**与 `brainstorming` 的关系：** 本技能既是 `brainstorming` 前的认知 gate，也是 `brainstorming` 过程中的持续更新主线。先给出可验证骨架，再在澄清、方案和设计讨论中按新信息增量修正。
 
 ## When to Use
 
 **Use when：**
-- 实体、关系、属性、状态或可用条件没有说清，继续设计容易误判时
-- 用户要改行为、改规则、改状态流转，但副作用和边界条件还没收束时
-- 讨论已经进入方案或实现，但系统理解仍停留在抽象词，缺少可验证骨架时
-- 看起来只是小改动，但业务规则、状态迁移或可用条件其实容易误读时
-- 用户明确要求“先想清楚再做”，或你已经察觉自己想跳过认知直接给方案时
-- 需要先统一系统理解，再决定是否进入方案、拆解、设计或实现时
+- 头脑风暴开始前，需要先统一问题边界与系统认知时
+- 头脑风暴过程中出现新约束、新证据或认知冲突，需要持续修正认知骨架时
+- 在现有代码库探索、熟悉系统架构、梳理功能模块时，需要同步建立可验证核心认知时
+- 进入系统架构讨论、拆分或重构前
+- 在实现新功能、新系统、新组件或行为变更前
+- 用户明确要求构建核心认知或更新既有核心认知时
 
 **Do not use when：**
-- 只是查询现成 API、命令或语法
-- 只是做机械替换，没有系统理解成本
-- 问题局限在局部语法或工具用法，不涉及系统行为和规则判断
+- 仅做现成 API、命令或语法查询，且不需要落到架构、模块职责、状态或规则判断
+- 仅做机械替换（如纯重命名、纯格式化、批量文本替换），且不影响行为、契约、状态或边界条件
+- 当前轮次只是执行确定性操作（如跑命令、同步文件、生成产物），核心认知已稳定且无新增架构/模块/行为变化
 
 ## Core Pattern
 
@@ -45,6 +45,14 @@ description: Use when key entities, relationships, decisive attributes, state tr
 如果某一步说不清，不要跳过；先把当前维度补到最低可验证骨架。
 
 属性核心要点至少包括：类型、唯一性、可编辑性、必填、长度、精度。只要这些会影响规则判断、接口契约、校验逻辑、状态迁移、输出或存储设计，就必须明确。
+
+## Continuous Construction Loop
+
+- `V0（头脑风暴前）`：先产出 7 维最小骨架，并标注“已确认 / 待确认”
+- `V1..Vn（头脑风暴中）`：每次出现新需求、新代码证据或冲突结论时，增量更新相关维度并标注来源
+- `Vfinal（进入设计与测试前）`：收敛关键 `待确认`，形成可直接支撑系统设计与测试设计的认知底稿
+- `代码库探索阶段`：按“目录/模块 -> 实体/关系 -> 状态/界限”推进，不等待进入实现阶段才补认知
+- 任一阶段出现关键矛盾时，优先回补 7 维缺口，再继续方案讨论
 
 ## Quick Reference
 
@@ -65,6 +73,15 @@ description: Use when key entities, relationships, decisive attributes, state tr
 - `when`：按不同输入与当前实体关系/属性/状态列出决策场景与决策结果
 - `then`：输出 + 实体关系变化 + 属性变化 + 状态变化
 - `exception`：异常场景
+
+认知到设计/测试的最小追踪表：
+
+| 核心认知项 | 设计文档落点 | 测试文档落点 | 来源锚点 |
+| --- | --- | --- | --- |
+| 结构/模块边界 | 架构分层、模块职责、协作链路 | 集成测试、契约测试、链路测试 | `代码` / `文档` / `需求` / `待确认` |
+| 关系/属性约束 | 数据模型、接口契约、校验规则 | 边界测试、校验测试、兼容性测试 | `代码` / `文档` / `需求` / `待确认` |
+| 状态与迁移 | 状态机、时序与回退策略 | 状态迁移测试、异常路径测试、幂等测试 | `代码` / `文档` / `需求` / `待确认` |
+| 界限（given/when/then） | 可用条件、决策规则、输出与异常定义 | 场景用例、判定断言、异常断言 | `代码` / `文档` / `需求` / `待确认` |
 
 ## Minimum Bar
 
@@ -377,6 +394,8 @@ description: Use when key entities, relationships, decisive attributes, state tr
 - 每个功能点的 `then` 是否明确写出实体关系变化、属性变化、状态变化（或明确不变化）
 - 关键数字（默认值、阈值、TTL、重试、超时、SLA）是否都标注了来源
 - 跨 `>=3` 子系统或 `>=3` 模块的流程是否提供 `PlantUML` 时序图；复杂状态流程是否提供 `PlantUML` 状态图
+- 是否在 `V0 -> V1..Vn -> Vfinal` 过程中持续更新核心认知，而不是只在开头构建一次
+- 每个关键结论是否都有来源锚点（`代码` / `文档` / `需求` / `待确认`），并能映射到设计文档章节与测试场景
 
 ## Purpose
 

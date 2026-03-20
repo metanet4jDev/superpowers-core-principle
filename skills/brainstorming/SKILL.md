@@ -1,15 +1,15 @@
 ---
 name: brainstorming
-description: "Use when a new feature, system, component, or behavior change needs clarification before implementation."
+description: "Use when brainstorming or clarifying feature/system/component/behavior changes before implementation, including existing-codebase exploration where architecture or module understanding affects design."
 ---
 
 # Brainstorming Ideas Into Designs
 
 Help turn ideas into fully formed designs and specs through natural collaborative dialogue.
 
-Start by understanding the current project context, or if this is greenfield work, start by decomposing the system and clarifying its boundaries. Then ask questions one at a time to refine the idea. Once you understand what you're building, present the design and get user approval.
+Start by invoking `core-principle` to establish the initial cognition skeleton (`V0`). Then understand the current project context, or if this is greenfield work, decompose the system and clarify its boundaries. Keep updating core cognition (`V1..Vn`) as new information appears. Ask questions one at a time to refine the idea. Once you understand what you're building, present the design and get user approval.
 
-**REQUIRED SUB-SKILL:** Use `superpowers:core-principle` before brainstorming, clarifying requirements, modeling domains, analyzing business rules, or evaluating behavior changes when key entities, relationships, decisive attributes, state transitions, side effects, or availability conditions are unclear, incomplete, or easy to skip. Apply it exactly: fixed 7-part cognition order, no skipped or blank dimensions, each dimension must reach the minimum verifiable skeleton expected by `core-principle`, write `待确认` in the current dimension before moving on when information is incomplete, and treat `界限` as availability conditions plus execution consequences. Do this before context exploration, clarifying questions, approaches, or design discussion.
+**REQUIRED SUB-SKILL:** Use `superpowers:core-principle` as a continuous cognition thread for brainstorming. Build `V0` before context exploration, clarifying questions, approaches, or design discussion, then keep updating to `V1..Vn` during existing-codebase exploration, requirement clarification, and approach evaluation whenever new evidence, constraints, or conflicts appear. Apply it exactly: fixed 7-part cognition order, no skipped or blank dimensions, each dimension must reach the minimum verifiable skeleton expected by `core-principle`, write `待确认` in the current dimension before moving on when information is incomplete, and treat `界限` as availability conditions plus execution consequences.
 
 <HARD-GATE>
 Do NOT invoke any implementation skill, write any code, scaffold any project, or take any implementation action until you have presented a design and the user has approved it. This applies to EVERY project regardless of perceived simplicity.
@@ -23,7 +23,7 @@ Every project goes through this process. A todo list, a single-function utility,
 
 You MUST create a task for each of these items and complete them in order:
 
-1. **Run core-principle gate** — if the request is brainstorming, requirements clarification, domain modeling, business-rule analysis, or behavior-change analysis where key entities, relationships, decisive attributes, state transitions, side effects, or availability conditions are unclear, incomplete, or easy to skip, invoke `superpowers:core-principle` and pass its exact gate before anything else: fixed 7-part cognition order, no skipped or blank dimensions, each dimension reaches the minimum verifiable skeleton, and `待确认` is recorded in the current dimension before moving on
+1. **Run and maintain core-principle loop** — for brainstorming, requirements clarification, domain modeling, business-rule analysis, and behavior-change analysis, invoke `superpowers:core-principle` before anything else to build `V0`; during existing-codebase exploration, clarifying questions, and approach comparison, continuously update to `V1..Vn` when new evidence/constraints/conflicts appear; always keep the exact gate: fixed 7-part cognition order, no skipped or blank dimensions, each dimension reaches the minimum verifiable skeleton, and `待确认` is recorded in the current dimension before moving on
 2. **Explore project context** — when there is an existing project, check files, docs, recent commits; for greenfield system design with no existing repo context, go straight to system decomposition and core cognition
 3. **Offer visual companion** (if topic will involve visual questions) — this is its own message, not combined with a clarifying question. See the Visual Companion section below.
 4. **Ask clarifying questions** — one at a time, understand purpose/constraints/success criteria; when the topic is a new multi-subsystem system, prioritize subsystem boundary and dependency questions before field details; when decisive attribute details are missing, prioritize focused questions about type, uniqueness, editability, requiredness, length, and precision
@@ -38,12 +38,14 @@ You MUST create a task for each of these items and complete them in order:
 
 ```dot
 digraph brainstorming {
-    "Brainstorming / requirements /\ndomain modeling / business-rule /\nbehavior-change request with\nunclear, incomplete, or easy-to-skip\nkey entities, relationships, decisive\nattributes, state transitions, side\neffects, or availability conditions?" [shape=diamond];
-    "Invoke core-principle\n(7 dimensions, no blanks,\nminimum skeleton, `待确认`\nbefore moving on)" [shape=box];
-    "Explore project context" [shape=box];
+    "Brainstorming / requirements /\ndomain modeling / business-rule /\nbehavior-change request?" [shape=diamond];
+    "Invoke core-principle\nV0 (7 dimensions,\nno blanks, minimum skeleton,\n`待确认` before moving on)" [shape=box];
+    "Explore project context\n(including existing codebase\narchitecture/module mapping)" [shape=box];
     "Visual questions ahead?" [shape=diamond];
     "Offer Visual Companion\n(own message, no other content)" [shape=box];
     "Ask clarifying questions" [shape=box];
+    "New evidence / constraints /\ncognition conflicts?" [shape=diamond];
+    "Update core-principle\nV1..Vn (same 7-dimension rules,\nsource anchors,\nresolve or mark `待确认`)" [shape=box];
     "Propose 2-3 approaches" [shape=box];
     "Present design sections" [shape=box];
     "User approves design?" [shape=diamond];
@@ -53,17 +55,19 @@ digraph brainstorming {
     "User reviews spec?" [shape=diamond];
     "Invoke writing-plans skill" [shape=doublecircle];
 
-    "Brainstorming / requirements /\ndomain modeling / business-rule /\nbehavior-change request with\nunclear, incomplete, or easy-to-skip\nkey entities, relationships, decisive\nattributes, state transitions, side\neffects, or availability conditions?" -> "Invoke core-principle\n(7 dimensions, no blanks,\nminimum skeleton, `待确认`\nbefore moving on)" [label="yes"];
-    "Brainstorming / requirements /\ndomain modeling / business-rule /\nbehavior-change request with\nunclear, incomplete, or easy-to-skip\nkey entities, relationships, decisive\nattributes, state transitions, side\neffects, or availability conditions?" -> "Explore project context" [label="no"];
-    "Invoke core-principle\n(7 dimensions, no blanks,\nminimum skeleton, `待确认`\nbefore moving on)" -> "Explore project context";
-    "Explore project context" -> "Visual questions ahead?";
+    "Brainstorming / requirements /\ndomain modeling / business-rule /\nbehavior-change request?" -> "Invoke core-principle\nV0 (7 dimensions,\nno blanks, minimum skeleton,\n`待确认` before moving on)";
+    "Invoke core-principle\nV0 (7 dimensions,\nno blanks, minimum skeleton,\n`待确认` before moving on)" -> "Explore project context\n(including existing codebase\narchitecture/module mapping)";
+    "Explore project context\n(including existing codebase\narchitecture/module mapping)" -> "Visual questions ahead?";
     "Visual questions ahead?" -> "Offer Visual Companion\n(own message, no other content)" [label="yes"];
     "Visual questions ahead?" -> "Ask clarifying questions" [label="no"];
     "Offer Visual Companion\n(own message, no other content)" -> "Ask clarifying questions";
-    "Ask clarifying questions" -> "Propose 2-3 approaches";
+    "Ask clarifying questions" -> "New evidence / constraints /\ncognition conflicts?";
+    "New evidence / constraints /\ncognition conflicts?" -> "Update core-principle\nV1..Vn (same 7-dimension rules,\nsource anchors,\nresolve or mark `待确认`)" [label="yes"];
+    "Update core-principle\nV1..Vn (same 7-dimension rules,\nsource anchors,\nresolve or mark `待确认`)" -> "Ask clarifying questions";
+    "New evidence / constraints /\ncognition conflicts?" -> "Propose 2-3 approaches" [label="no"];
     "Propose 2-3 approaches" -> "Present design sections";
     "Present design sections" -> "User approves design?";
-    "User approves design?" -> "Present design sections" [label="no, revise"];
+    "User approves design?" -> "Ask clarifying questions" [label="no, revise"];
     "User approves design?" -> "Write design doc" [label="yes"];
     "Write design doc" -> "Spec review loop";
     "Spec review loop" -> "Spec review passed?";
@@ -80,13 +84,14 @@ digraph brainstorming {
 
 **Understanding the idea:**
 
-- Before context exploration or clarifying questions, decide whether `core-principle` applies. It applies to brainstorming, clarifying requirements, modeling domains, analyzing business rules, or evaluating behavior changes when key entities, relationships, decisive attributes, state transitions, side effects, or availability conditions are unclear, incomplete, or easy to skip.
-- When `core-principle` applies, follow it exactly before moving on: structure, classification, relationships, attributes, states, functions, `界限`; no skipped or blank dimensions; each dimension must reach the minimum verifiable skeleton; if the current dimension is incomplete, write `待确认` there before entering the next one.
+- In brainstorming contexts, treat `core-principle` as default. Build `V0` before context exploration or clarifying questions, including existing-codebase architecture/module exploration.
+- During context exploration, clarifying questions, and approach comparison, if new evidence/constraints/conflicts appear, update to `V1..Vn` before continuing.
+- Follow `core-principle` exactly in every update: structure, classification, relationships, attributes, states, functions, `界限`; no skipped or blank dimensions; each dimension must reach the minimum verifiable skeleton; if the current dimension is incomplete, write `待确认` there before entering the next one.
 - In this context, `界限` means availability conditions plus execution consequences, not a generic architecture boundary label.
 - If missing attribute details would affect validation, storage, state transitions, availability conditions, outputs, or document structure, ask focused clarification questions before treating the design as stable. Cover type, uniqueness, editability, requiredness, length, and precision.
 - When the user already knows the result should become a design doc, shape the questions and later presentation around the target structure. For rule-heavy work, prefer `功能模块 -> 实体与属性 / 关系与状态 / 功能点` so the answers map directly into the final document.
 - Do not rationalize this away because the user wants speed, brevity, or a "rough brainstorm". Those are exactly the situations where missing states and boundaries creates bad designs.
-- Check out the current project state first (files, docs, recent commits) when working in an existing project; if this is greenfield system design with no repo context, go straight to system decomposition and core cognition
+- Check out the current project state first (files, docs, recent commits) when working in an existing project, and fold findings back into the 7 dimensions with source anchors; if this is greenfield system design with no repo context, go straight to system decomposition and core cognition
 - Before asking detailed questions, assess scope: if the request describes multiple independent subsystems (e.g., "build a platform with chat, file storage, billing, and analytics"), flag this immediately. Don't spend questions refining details of a project that needs to be decomposed first.
 - If the project is too large for a single spec, help the user decompose into sub-projects: what are the independent pieces, how do they relate, what order should they be built?
 - If the user is creating a brand-new system and explicitly wants subsystem-level understanding, do NOT jump straight to only the first sub-project. First complete the overall subsystem split and establish per-subsystem core cognition.
@@ -156,7 +161,7 @@ Wait for the user's response. If they request changes, make them and re-run the 
 
 ## Key Principles
 
-- **Core cognition first** - Use `core-principle` before brainstorming whenever key entities, relationships, decisive attributes, state transitions, side effects, or availability conditions are unclear, incomplete, or easy to skip; pass its exact gate before continuing
+- **Core cognition first and continuous** - Build `V0` with `core-principle` before brainstorming, then keep updating `V1..Vn` throughout context exploration and clarification; pass the same exact gate on every update before continuing
 - **One question at a time** - Don't overwhelm with multiple questions
 - **Multiple choice preferred** - Easier to answer than open-ended when possible
 - **YAGNI ruthlessly** - Remove unnecessary features from all designs
