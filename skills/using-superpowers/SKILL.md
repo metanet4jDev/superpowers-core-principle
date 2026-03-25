@@ -43,6 +43,14 @@ Skills use Claude Code tool names. Non-CC platforms: see `references/codex-tools
 
 **Invoke relevant or requested skills BEFORE any response or action.** Even a 1% chance a skill might apply means that you should invoke the skill to check. If an invoked skill turns out to be wrong for the situation, you don't need to use it.
 
+## Required Handoff
+
+`core-principle` is a cognition gate, not a substitute for `brainstorming`.
+
+If `core-principle` applies because the task involves new functionality, behavior changes, rule changes, backward compatibility, impact isolation, cross-module or cross-repo changes, or interface/display consistency changes, you MUST evaluate and invoke `brainstorming` next before any implementation-oriented action.
+
+Do not stop at `core-principle` in those cases. Finish the cognition gate, then continue into `brainstorming`.
+
 ```dot
 digraph skill_flow {
     "User message received" [shape=doublecircle];
@@ -108,7 +116,7 @@ When multiple skills could apply, use this order:
 "Let's build X" → brainstorming first, then implementation skills.
 "Fix this bug" → debugging first, then domain-specific skills.
 
-For existing-codebase exploration, architecture or module understanding, and behavior-change analysis, treat `core-principle` as the default process skill. Build `V0` before exploration or clarification; if new evidence, constraints, or conflicts appear, keep updating `V1..Vn` while selecting and applying the next skill.
+For existing-codebase exploration, architecture or module understanding, and behavior-change analysis, treat `core-principle` as the default process skill. Build `V0` before exploration or clarification; if the task also needs design decisions, compatibility decisions, or impact-scope control, `brainstorming` is the next required skill before any implementation-oriented action. If new evidence, constraints, or conflicts appear, keep updating `V1..Vn` while selecting and applying the next skill.
 
 ## Skill Types
 
