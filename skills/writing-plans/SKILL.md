@@ -22,6 +22,15 @@ Assume they are a skilled developer, but know almost nothing about our toolset o
 
 If the spec covers multiple independent subsystems, it should have been broken into sub-project specs during brainstorming. If it wasn't, suggest breaking this into separate plans — one per subsystem. Each plan should produce working, testable software on its own.
 
+Core cognition doc split rule (by design doc source line count):
+- If design doc `<=1000` lines, core cognition should stay inside the design doc (no separate cognition file required)
+- If design doc `>1000` lines, a separate core cognition doc is required and treated as the fact source
+- If design doc `>1000` lines but no separate core cognition doc exists yet, stop plan writing and request/create the missing cognition doc first
+
+Plan writing rule:
+- If separate core cognition doc exists (or is required by the `>1000` rule), reference both spec and core cognition sections in tasks; do not copy long domain rules/state definitions into the plan
+- If design doc `<=1000` lines, reference the design doc's "核心认知" section in tasks; still avoid duplicating long background text
+
 ## File Structure
 
 Before defining tasks, map out which files will be created or modified and what each one is responsible for. This is where decomposition decisions get locked in.
@@ -108,6 +117,7 @@ git commit -m "feat: add specific feature"
 - Complete code in plan (not "add validation")
 - Exact commands with expected output
 - Reference relevant skills with @ syntax
+- Prefer section references over duplicated prose across cognition/spec/plan
 - DRY, YAGNI, TDD, frequent commits
 
 ## Plan Review Loop

@@ -29,7 +29,7 @@ You MUST create a task for each of these items and complete them in order:
 4. **Ask clarifying questions** — one at a time, understand purpose/constraints/success criteria; when the topic is a new multi-subsystem system, prioritize subsystem boundary and dependency questions before field details; when decisive attribute details are missing, prioritize focused questions about type, uniqueness, editability, requiredness, length, and precision
 5. **Propose 2-3 approaches** — with trade-offs and your recommendation
 6. **Present design** — in sections scaled to their complexity, get user approval after each section
-7. **Write design doc** — save to `docs/superpowers/specs/YYYY-MM-DD-<topic>-design.md` and commit; for new multi-subsystem systems, write the total-system design first, then decide which subsystem gets its own follow-up spec
+7. **Write design doc** — save to `docs/superpowers/specs/YYYY-MM-DD-<topic>-design.md` and commit; if the design doc is `<=1000` lines, keep core cognition in the same design doc; if the design doc is `>1000` lines, create `docs/superpowers/specs/YYYY-MM-DD-<topic>-core-cognition.md` and reference it from the design doc; for new multi-subsystem systems, write the total-system design first, then decide which subsystem gets its own follow-up spec
 8. **Spec review loop** — dispatch spec-document-reviewer subagent with precisely crafted review context (never your session history); fix issues and re-dispatch until approved (max 1 iterations, then surface to human)
 9. **User reviews written spec** — ask user to review the spec file before proceeding
 10. **Transition to implementation** — invoke writing-plans skill to create implementation plan
@@ -135,6 +135,10 @@ digraph brainstorming {
 
 - Write the validated design (spec) to `docs/superpowers/specs/YYYY-MM-DD-<topic>-design.md`
   - (User preferences for spec location override this default)
+- Document split rule by source line count:
+  - If design doc `<=1000` lines: do not create a separate core cognition doc; keep a compact "核心认知" section in the design doc
+  - If design doc `>1000` lines: create `docs/superpowers/specs/YYYY-MM-DD-<topic>-core-cognition.md` and reference it from the design doc instead of duplicating large sections
+- Avoid large cross-document duplication: cognition = facts/constraints, spec = decisions/trade-offs; connect by section references
 - If the work starts as a new multi-subsystem system design, prefer a document shape like `总系统概览 -> 子系统划分 -> 子系统依赖总览 -> 子系统逐个展开`
 - For new multi-subsystem systems, finish the total-system design doc first; only after that decide whether a specific subsystem needs its own follow-up spec and implementation cycle
 - Use elements-of-style:writing-clearly-and-concisely skill if available
