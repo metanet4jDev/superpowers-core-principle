@@ -13,6 +13,8 @@ description: Use when before or during brainstorming, while exploring an existin
 
 **与 `brainstorming` 的关系：** 本技能既是 `brainstorming` 前的认知 gate，也是 `brainstorming` 过程中的持续更新主线。先给出可验证骨架，再在澄清、方案和设计讨论中按新信息增量修正。
 
+**后续动作约束：** 本技能只负责建立认知，不替代 `brainstorming`。如果任务涉及新增功能、规则变更、兼容性约束、影响面控制，或仍需要做方案与设计决策，则在完成认知骨架后，下一步必须进入 `brainstorming`，不得直接进入实现或实现导向动作。
+
 ## When to Use
 
 **Use when：**
