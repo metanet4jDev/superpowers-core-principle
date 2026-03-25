@@ -136,7 +136,7 @@ After completing each chunk of the plan:
 
 **Review loop guidance:**
 - Same agent that wrote the plan fixes it (preserves context)
-- If loop exceeds 5 iterations, surface to human for guidance
+- If loop exceeds 3 iterations, surface to human for guidance
 - Reviewers are advisory - explain disagreements if you believe feedback is incorrect
 
 ## Execution Handoff
