@@ -46,6 +46,8 @@ Skills use Claude Code tool names. Non-CC platforms: see `references/codex-tools
 ```dot
 digraph skill_flow {
     "User message received" [shape=doublecircle];
+    "Need codebase / architecture /\nbehavior understanding?" [shape=diamond];
+    "Invoke core-principle\nV0 (7 dimensions,\nno blanks, minimum skeleton,\n`待确认` before moving on)" [shape=box];
     "About to EnterPlanMode?" [shape=doublecircle];
     "Already brainstormed?" [shape=diamond];
     "Invoke brainstorming skill" [shape=box];
@@ -57,12 +59,15 @@ digraph skill_flow {
     "Follow skill exactly" [shape=box];
     "Respond (including clarifications)" [shape=doublecircle];
 
+    "User message received" -> "Need codebase / architecture /\nbehavior understanding?";
+    "Need codebase / architecture /\nbehavior understanding?" -> "Invoke core-principle\nV0 (7 dimensions,\nno blanks, minimum skeleton,\n`待确认` before moving on)" [label="yes"];
+    "Need codebase / architecture /\nbehavior understanding?" -> "Might any skill apply?" [label="no"];
+    "Invoke core-principle\nV0 (7 dimensions,\nno blanks, minimum skeleton,\n`待确认` before moving on)" -> "Might any skill apply?";
+
     "About to EnterPlanMode?" -> "Already brainstormed?";
     "Already brainstormed?" -> "Invoke brainstorming skill" [label="no"];
     "Already brainstormed?" -> "Might any skill apply?" [label="yes"];
     "Invoke brainstorming skill" -> "Might any skill apply?";
-
-    "User message received" -> "Might any skill apply?";
     "Might any skill apply?" -> "Invoke Skill tool" [label="yes, even 1%"];
     "Might any skill apply?" -> "Respond (including clarifications)" [label="definitely not"];
     "Invoke Skill tool" -> "Announce: 'Using [skill] to [purpose]'";
@@ -81,7 +86,7 @@ These thoughts mean STOP—you're rationalizing:
 |---------|---------|
 | "This is just a simple question" | Questions are tasks. Check for skills. |
 | "I need more context first" | Skill check comes BEFORE clarifying questions. |
-| "Let me explore the codebase first" | Skills tell you HOW to explore. Check first. |
+| "Let me explore the codebase first" | Skills tell you HOW to explore. Use `core-principle` before exploration when architecture, modules, or behavior need understanding. |
 | "I can check git/files quickly" | Files lack conversation context. Check for skills. |
 | "Let me gather information first" | Skills tell you HOW to gather information. |
 | "This doesn't need a formal skill" | If a skill exists, use it. |
@@ -99,8 +104,11 @@ When multiple skills could apply, use this order:
 1. **Process skills first** (brainstorming, debugging) - these determine HOW to approach the task
 2. **Implementation skills second** (frontend-design, mcp-builder) - these guide execution
 
+"Inspect this repo" / "help me understand this module" / "what changes if we alter this behavior?" → `core-principle` first, then other applicable skills.
 "Let's build X" → brainstorming first, then implementation skills.
 "Fix this bug" → debugging first, then domain-specific skills.
+
+For existing-codebase exploration, architecture or module understanding, and behavior-change analysis, treat `core-principle` as the default process skill. Build `V0` before exploration or clarification; if new evidence, constraints, or conflicts appear, keep updating `V1..Vn` while selecting and applying the next skill.
 
 ## Skill Types
 
