@@ -30,7 +30,7 @@ You MUST create a task for each of these items and complete them in order:
 5. **Propose 2-3 approaches** — with trade-offs and your recommendation
 6. **Present design** — in sections scaled to their complexity, get user approval after each section
 7. **Write design doc** — save to `docs/superpowers/specs/YYYY-MM-DD-<topic>-design.md` and commit; if the design doc is `<=1000` lines, keep core cognition in the same design doc; if the design doc is `>1000` lines, create `docs/superpowers/specs/YYYY-MM-DD-<topic>-core-cognition.md` and reference it from the design doc; for new multi-subsystem systems, write the total-system design first, then decide which subsystem gets its own follow-up spec
-8. **Spec review loop** — dispatch spec-document-reviewer subagent with precisely crafted review context (never your session history); fix issues and re-dispatch until approved (max 3 iterations, then surface to human)
+8. **Spec review loop** — dispatch spec-document-reviewer subagent with precisely crafted review context (never your session history); fix issues and re-dispatch until approved (max 1 iterations, then surface to human)
 9. **User reviews written spec** — ask user to review the spec file before proceeding
 10. **Transition to implementation** — invoke writing-plans skill to create implementation plan
 
@@ -143,6 +143,7 @@ digraph brainstorming {
 
 **Spec Self-Review:**
 After writing the spec document, look at it with fresh eyes:
+
 
 1. **Placeholder scan:** Any "TBD", "TODO", incomplete sections, or vague requirements? Fix them.
 2. **Internal consistency:** Do any sections contradict each other? Does the architecture match the feature descriptions?
