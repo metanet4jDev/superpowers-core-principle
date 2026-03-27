@@ -32,7 +32,8 @@ You MUST create a task for each of these items and complete them in order:
 7. **Write design doc** — save to `docs/superpowers/specs/YYYY-MM-DD-<topic>-design.md` and commit; if the design doc is `<=1000` lines, keep core cognition in the same design doc; if the design doc is `>1000` lines, create `docs/superpowers/specs/YYYY-MM-DD-<topic>-core-cognition.md` and reference it from the design doc; for new multi-subsystem systems, write the total-system design first, then decide which subsystem gets its own follow-up spec
 8. **Spec review loop** — dispatch spec-document-reviewer subagent with precisely crafted review context (never your session history); fix issues and re-dispatch until approved (max 1 iterations, then surface to human)
 9. **User reviews written spec** — ask user to review the spec file before proceeding
-10. **Transition to implementation** — invoke writing-plans skill to create implementation plan
+10. **Plan impact check + changelog** — whenever core cognition doc or design doc changed in this cycle, proactively check whether an existing implementation plan must change; if yes, invoke writing-plans to update the plan and create/update `docs/superpowers/plans/plan-changelog.md`
+11. **Transition to implementation** — only after plan sync is complete; invoke writing-plans skill to create or update implementation plan
 
 ## Process Flow
 
@@ -76,6 +77,8 @@ digraph brainstorming {
 ```
 
 **The terminal state is invoking writing-plans.** Do NOT invoke frontend-design, mcp-builder, or any other implementation skill. The ONLY skill you invoke after brainstorming is writing-plans.
+
+If core cognition/design changes and an implementation plan already exists, run **Plan impact check + changelog** immediately before this terminal step: update the plan via writing-plans first, then append `docs/superpowers/plans/plan-changelog.md`.
 
 ## The Process
 
@@ -140,6 +143,13 @@ digraph brainstorming {
 - For new multi-subsystem systems, finish the total-system design doc first; only after that decide whether a specific subsystem needs its own follow-up spec and implementation cycle
 - Use elements-of-style:writing-clearly-and-concisely skill if available
 - Commit the design document to git
+- If core cognition/design changes may affect an existing implementation plan, you MUST run a plan impact check before implementation. If affected, invoke writing-plans to update plan files first, then create or update `docs/superpowers/plans/plan-changelog.md` to record:
+  - timestamp
+  - trigger document absolute path(s)
+  - affected plan file absolute path(s)
+  - concise change summary
+  - actor
+- Do not continue implementation while plan/doc drift remains unresolved.
 
 **Spec Self-Review:**
 After writing the spec document, look at it with fresh eyes:
@@ -161,7 +171,8 @@ Wait for the user's response. If they request changes, make them and re-run the 
 
 **Implementation:**
 
-- Invoke the writing-plans skill to create a detailed implementation plan
+- Invoke the writing-plans skill to create or update a detailed implementation plan
+- If this invocation is triggered by core cognition/design changes after a plan already exists, append a record to `docs/superpowers/plans/plan-changelog.md` immediately after plan update
 - Do NOT invoke any other skill. writing-plans is the next step.
 
 ## Key Principles

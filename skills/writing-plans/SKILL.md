@@ -31,6 +31,21 @@ Plan writing rule:
 - If separate core cognition doc exists (or is required by the `>1000` rule), reference both spec and core cognition sections in tasks; do not copy long domain rules/state definitions into the plan
 - If design doc `<=1000` lines, reference the design doc's "核心认知" section in tasks; still avoid duplicating long background text
 
+Strict source-of-truth alignment rule (mandatory):
+- Plan content must remain strictly aligned with the design document and core cognition document (or the design doc's "核心认知" section when no separate cognition file exists).
+- No additions, deletions, or semantic rewrites are allowed relative to source documents.
+- If required facts are missing from source documents, stop planning and update the source documents first.
+- Every task/step must include explicit section references to its source of truth (for example: `Design §x.y`, `Core Cognition §a.b`).
+
+## Sync Discipline (Mandatory)
+
+The plan must stay strictly synchronized with its source of truth at all times, ensuring unity of knowledge and action ("知行合一"): design document + separate core cognition document when applicable, or the design document's "核心认知" section otherwise.
+
+- No divergence is allowed between plan content and source documents.
+- If source documents change, update the plan immediately before continuing implementation.
+- If implementation feedback requires change, update design/core-cognition docs first, then update the plan.
+- Any task that cannot prove sync with source documents must be blocked until alignment is restored.
+
 ## File Structure
 
 Before defining tasks, map out which files will be created or modified and what each one is responsible for. This is where decomposition decisions get locked in.
@@ -74,6 +89,12 @@ Use this exact global gate block in plans:
 ```markdown
 # [Feature Name] Implementation Plan
 
+> **Source of Truth Declaration (Mandatory)**
+> This plan is written strictly according to the design/core-cognition source documents, with no additions, deletions, or semantic modifications.
+>
+> Design Document (absolute path): `/ABS/PATH/TO/design-doc.md`
+> Core Cognition Document (absolute path): `/ABS/PATH/TO/core-cognition.md` (if applicable)
+>
 > **For agentic workers:** REQUIRED: Use superpowers:subagent-driven-development (if subagents available) or superpowers:executing-plans to implement this plan. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** [One sentence describing what this builds]
@@ -84,6 +105,11 @@ Use this exact global gate block in plans:
 
 ---
 ```
+
+Header validation rules (mandatory):
+- Source document paths must be absolute paths.
+- If a separate core cognition document exists (or is required by rule), both paths must be declared.
+- If declaration is missing or any path is not absolute, stop plan writing and fix the header first.
 
 ## Task Structure
 
@@ -108,14 +134,15 @@ def test_specific_behavior():
 Run: `pytest tests/path/test.py::test_name -v`
 Expected: FAIL with "function not defined"
 
-- [ ] **Step 3: Write minimal implementation**
+- [ ] **Step 3: Write minimal implementation with required code comments aligned to Design/Core Cognition**
 
 ```python
 def function(input):
+    # This behavior must match Design §x.y and Core Cognition §a.b
     return expected
 ```
 
-- [ ] **Step 4: Run test to verify it passes**
+- [ ] **Step 4: Verify comments and behavior both match Design/Core Cognition, then run test to verify it passes**
 
 Run: `pytest tests/path/test.py::test_name -v`
 Expected: PASS
@@ -131,6 +158,10 @@ git commit -m "feat: add specific feature"
 
 Set all checkboxes in this task to `[x]`. Do not start Task N+1 before this is done.
 ````
+
+Task step-title rule (mandatory):
+- Implementation-related step titles must explicitly require code comments.
+- Comment content must stay semantically consistent with the design document and core cognition document.
 
 ## No Placeholders
 
@@ -155,19 +186,25 @@ Every step must contain the actual content an engineer needs. These are **plan f
 After completing each chunk of the plan:
 
 1. Dispatch plan-document-reviewer subagent (see plan-document-reviewer-prompt.md) with precisely crafted review context — never your session history. This keeps the reviewer focused on the plan, not your thought process.
-   - Provide: chunk content, path to spec document
+   - Provide: chunk content, absolute path to design document, absolute path to core cognition document (if applicable)
 2. If ❌ Issues Found:
    - Fix the issues in the chunk
    - Re-dispatch reviewer for that chunk
    - Repeat until ✅ Approved
 3. If ✅ Approved: proceed to next chunk (or execution handoff if last chunk)
 
-**Chunk boundaries:** Use `## Chunk N: <name>` headings to delimit chunks. Each chunk should be ≤1000 lines and logically self-contained.
+**Chunk and file boundaries (mandatory):**
+- Use `## Chunk N: <name>` headings to delimit chunks.
+- Each chunk must be logically self-contained and must be `<=500` lines.
+- Each plan file must be `<=1000` lines.
+- If content exceeds 1000 lines, split into sequential files (for example: `...-part-01.md`, `...-part-02.md`), preserving order and completeness.
+- A chunk must be stored entirely in a single file; cross-file chunk storage is not allowed.
 
 **Review loop guidance:**
 - Same agent that wrote the plan fixes it (preserves context)
 - If loop exceeds 3 iterations, surface to human for guidance
 - Reviewers are advisory - explain disagreements if you believe feedback is incorrect
+- Fail review if any plan/doc drift exists (design + core cognition), if chunk/file size rules are violated, or if implementation step titles omit explicit code-comment requirements.
 
 ## Execution Handoff
 
