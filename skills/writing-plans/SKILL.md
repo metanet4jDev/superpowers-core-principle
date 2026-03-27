@@ -51,6 +51,22 @@ This structure informs the task decomposition. Each task should produce self-con
 - "Run the tests and make sure they pass" - step
 - "Commit" - step
 
+## Task Sequencing Gate (Mandatory)
+
+Every plan must enforce strict sequential execution:
+- Add a global gate section before Task 1
+- The next task cannot start until the current task is marked completed
+- "Mark current task completed" must be written as an explicit final step inside each task
+
+Use this exact global gate block in plans:
+
+```markdown
+### 0. Task Sequencing Gate (Mandatory)
+
+- [ ] After all steps in the current task are done, mark that task as completed (set all checkboxes in that task to `[x]`).
+- [ ] Do not start the next task before the current task is marked completed.
+```
+
 ## Plan Document Header
 
 **Every plan MUST start with this header:**
@@ -110,6 +126,10 @@ Expected: PASS
 git add tests/path/test.py src/path/file.py
 git commit -m "feat: add specific feature"
 ```
+
+- [ ] **Step 6: Mark Task N as completed, then move to Task N+1**
+
+Set all checkboxes in this task to `[x]`. Do not start Task N+1 before this is done.
 ````
 
 ## No Placeholders
@@ -137,6 +157,8 @@ After writing the complete plan, look at the spec with fresh eyes and check the 
 **2. Placeholder scan:** Search your plan for red flags — any of the patterns from the "No Placeholders" section above. Fix them.
 
 **3. Type consistency:** Do the types, method signatures, and property names you used in later tasks match what you defined in earlier tasks? A function called `clearLayers()` in Task 3 but `clearFullLayers()` in Task 7 is a bug.
+
+**4. Task sequencing check:** Did you add the global task gate and a final "mark completed" step in every task? If missing, add them.
 
 If you find issues, fix them inline. No need to re-review — just fix and move on. If you find a spec requirement with no task, add the task.
 
