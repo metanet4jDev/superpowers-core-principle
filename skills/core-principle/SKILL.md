@@ -15,7 +15,7 @@ description: Use when before or during brainstorming, while exploring an existin
 
 **后续动作约束：** 本技能只负责建立认知，不替代 `brainstorming`。如果任务涉及新增功能、规则变更、兼容性约束、影响面控制，或仍需要做方案与设计决策，则在完成认知骨架后，下一步必须进入 `brainstorming`，不得直接进入实现或实现导向动作。
 
-**计划联动约束（Mandatory）：** 当核心认知或其对应设计文档发生改动时，必须主动检查是否会引起既有实现计划变更；若有影响，必须先回到 `brainstorming` 流程并按 `writing-plans` 技能更新计划，再创建或更新 `docs/superpowers/plans/plan-changelog.md` 记录变更，未完成计划同步前不得进入或继续实现动作。
+**计划联动约束（Mandatory）：** 当核心认知或其对应设计文档发生改动时，必须主动检查是否会引起既有实现计划变更；若有影响，必须先回到 `brainstorming` 流程，使用 `superpowers:document-workspace-layout` 解析任务级 `PLAN_PATH` 与 `PLAN_CHANGELOG`，再按 `writing-plans` 技能更新计划入口文件及同目录下受影响的计划分片文件并记录变更，未完成计划同步前不得进入或继续实现动作。
 
 ## When to Use
 
@@ -57,7 +57,7 @@ description: Use when before or during brainstorming, while exploring an existin
 - `Vfinal（进入设计与测试前）`：收敛关键 `待确认`，形成可直接支撑系统设计与测试设计的认知底稿
 - `代码库探索阶段`：按“目录/模块 -> 实体/关系 -> 状态/界限”推进，不等待进入实现阶段才补认知
 - 任一阶段出现关键矛盾时，优先回补 7 维缺口，再继续方案讨论
-- 任一阶段若核心认知改动可能影响既有计划，必须立即触发计划影响检查；确认有影响后，按 `writing-plans` 更新计划并在 `docs/superpowers/plans/plan-changelog.md` 记录（含触发文档绝对路径、受影响计划绝对路径、变更摘要）
+- 任一阶段若核心认知改动可能影响既有计划，必须立即触发计划影响检查；确认有影响后，先用 `superpowers:document-workspace-layout` 解析任务级 `PLAN_CHANGELOG` 与受影响 `PLAN_PATH`，再按 `writing-plans` 更新计划入口文件及必要的计划分片文件并记录（含触发文档绝对路径、受影响计划绝对路径、变更摘要）
 
 ## Quick Reference
 

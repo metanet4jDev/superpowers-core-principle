@@ -15,8 +15,12 @@ Assume they are a skilled developer, but know almost nothing about our toolset o
 
 **Context:** This should be run in a dedicated worktree (created by brainstorming skill).
 
-**Save plans to:** `docs/superpowers/plans/YYYY-MM-DD-<feature-name>.md`
-- (User preferences for plan location override this default)
+**REQUIRED PATH SUB-SKILL:** Use `superpowers:document-workspace-layout` before writing or referencing any task-level design/plan path. Resolve `DESIGN_DOC_PATH`、`CORE_COGNITION_PATH`、`PLAN_PATH`、`PLAN_CHANGELOG`、`PLAN_WORKSPACE_DIR` 和 `TASK_WORKSPACE_DIR` first.
+
+**Save plans to:** keep the canonical entry file at the resolved `PLAN_PATH` inside `PLAN_WORKSPACE_DIR`
+- The formal implementation plan entry filename is fixed by the contract: `implementation-plan.md`
+- If the plan must be split, keep `PLAN_PATH` as the only canonical entry/index file and add sequential part files beside it: `implementation-plan-part-01.md`, `implementation-plan-part-02.md`, ...
+- `planning-with-files-zh` files must live beside `PLAN_PATH` and any split plan files in the same `PLAN_WORKSPACE_DIR`
 
 ## Scope Check
 
@@ -84,7 +88,7 @@ Use this exact global gate block in plans:
 
 ## Plan Document Header
 
-**Every plan MUST start with this header:**
+**The canonical entry file at `PLAN_PATH` MUST start with this header:**
 
 ```markdown
 # [Feature Name] Implementation Plan
@@ -109,7 +113,19 @@ Use this exact global gate block in plans:
 Header validation rules (mandatory):
 - Source document paths must be absolute paths.
 - If a separate core cognition document exists (or is required by rule), both paths must be declared.
-- If declaration is missing or any path is not absolute, stop plan writing and fix the header first.
+- If declaration is missing or any path is not absolute, stop plan writing and fix the `PLAN_PATH` header first.
+- If the plan is split across multiple files, `PLAN_PATH` must remain present and must list every part file in execution order.
+
+## Split Plan Contract
+
+When a single plan file is enough, write the full plan directly to `PLAN_PATH`.
+
+When the actionable plan would exceed file-size limits:
+- Keep `PLAN_PATH` as the only canonical entry file.
+- Store the source-of-truth declaration, goal, architecture, tech stack, and an ordered table of part files in `PLAN_PATH`.
+- Put executable chunk content into sequential files named exactly `implementation-plan-part-01.md`, `implementation-plan-part-02.md`, ...
+- Each part file should start with a short title such as `# <Feature Name> Implementation Plan - Part 01` and point back to `implementation-plan.md`.
+- Execution handoff, plan review references, and later plan-impact updates must still anchor on `PLAN_PATH`, then update any affected part files in the same `PLAN_WORKSPACE_DIR`.
 
 ## Task Structure
 
@@ -196,8 +212,9 @@ After completing each chunk of the plan:
 **Chunk and file boundaries (mandatory):**
 - Use `## Chunk N: <name>` headings to delimit chunks.
 - Each chunk must be logically self-contained and must be `<=500` lines.
+- `PLAN_PATH` may be either the full plan file or the plan index file.
 - Each plan file must be `<=1000` lines.
-- If content exceeds 1000 lines, split into sequential files (for example: `...-part-01.md`, `...-part-02.md`), preserving order and completeness.
+- If content exceeds 1000 lines, keep `PLAN_PATH` as the index/entry file and split executable content into `implementation-plan-part-01.md`, `implementation-plan-part-02.md`, ... preserving order and completeness.
 - A chunk must be stored entirely in a single file; cross-file chunk storage is not allowed.
 
 **Review loop guidance:**
@@ -210,7 +227,7 @@ After completing each chunk of the plan:
 
 After saving the plan:
 
-**"Plan complete and saved to `docs/superpowers/plans/<filename>.md`. Ready to execute?"**
+**"Plan complete and saved to `<PLAN_PATH>`（若已拆分，按入口文件中的 part 顺序执行）. Ready to execute?"**
 
 **Execution path depends on harness capabilities:**
 
