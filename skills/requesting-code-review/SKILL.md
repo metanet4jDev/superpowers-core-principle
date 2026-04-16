@@ -1,105 +1,74 @@
 ---
 name: requesting-code-review
-description: Use when completing tasks, implementing major features, or before merging to verify work meets requirements
+description: Use only when the user explicitly asks to run a code review for completed work, a major feature, or a pre-merge check.
 ---
 
 # Requesting Code Review
 
-Dispatch superpowers:code-reviewer subagent to catch issues before they cascade. The reviewer gets precisely crafted context for evaluation — never your session's history. This keeps the reviewer focused on the work product, not your thought process, and preserves your own context for continued work.
+Code review is user-triggered. Do not dispatch a code-reviewer subagent automatically after a task, batch, feature, or implementation session.
 
-**Core principle:** Review early, review often.
+Allowed behavior:
 
-## When to Request Review
+- Tell the user that code review is available.
+- Wait for an explicit instruction such as “review this,” “run code review,” or “检查代码”。
+- After review feedback is returned, fix issues only if the user asks you to address them, unless the user already gave that permission with the review request.
 
-**Mandatory:**
-- After each task in subagent-driven development
-- After completing major feature
-- Before merge to main
+## When to Use
 
-**Optional but valuable:**
-- When stuck (fresh perspective)
-- Before refactoring (baseline check)
-- After fixing complex bug
+Use when the user explicitly requests code review:
+
+- After completing a task or batch.
+- After completing a major feature.
+- Before merge or PR.
+- When stuck and the user wants a fresh review.
+
+Do not use when:
+
+- The plan merely says a review checkpoint exists.
+- A task just completed but the user has not asked for review.
+- You are about to move to the next task and want to auto-check the previous one.
 
 ## How to Request
 
-**1. Get git SHAs:**
+1. Get git SHAs:
+
 ```bash
 BASE_SHA=$(git rev-parse HEAD~1)  # or origin/main
 HEAD_SHA=$(git rev-parse HEAD)
 ```
 
-**2. Dispatch code-reviewer subagent:**
+2. Dispatch code-reviewer subagent only after explicit user instruction.
 
-Use Task tool with superpowers:code-reviewer type, fill template at `code-reviewer.md`
+Use the template at `requesting-code-review/code-reviewer.md`.
 
-**Placeholders:**
-- `{WHAT_WAS_IMPLEMENTED}` - What you just built
-- `{PLAN_OR_REQUIREMENTS}` - What it should do
-- `{BASE_SHA}` - Starting commit
-- `{HEAD_SHA}` - Ending commit
-- `{DESCRIPTION}` - Brief summary
+Placeholders:
 
-**3. Act on feedback:**
-- Fix Critical issues immediately
-- Fix Important issues before proceeding
-- Note Minor issues for later
-- Push back if reviewer is wrong (with reasoning)
+- `{WHAT_WAS_IMPLEMENTED}`：what was built.
+- `{PLAN_OR_REQUIREMENTS}`：what it should do.
+- `{BASE_SHA}`：starting commit.
+- `{HEAD_SHA}`：ending commit.
+- `{DESCRIPTION}`：brief summary.
 
-## Example
+3. Act on feedback according to user instruction:
 
-```
-[Just completed Task 2: Add verification function]
-
-You: Let me request code review before proceeding.
-
-BASE_SHA=$(git log --oneline | grep "Task 1" | head -1 | awk '{print $1}')
-HEAD_SHA=$(git rev-parse HEAD)
-
-[Dispatch superpowers:code-reviewer subagent]
-  WHAT_WAS_IMPLEMENTED: Verification and repair functions for conversation index
-  PLAN_OR_REQUIREMENTS: Task 2 from docs/superpowers/plans/deployment-plan.md
-  BASE_SHA: a7981ec
-  HEAD_SHA: 3df7661
-  DESCRIPTION: Added verifyIndex() and repairIndex() with 4 issue types
-
-[Subagent returns]:
-  Strengths: Clean architecture, real tests
-  Issues:
-    Important: Missing progress indicators
-    Minor: Magic number (100) for reporting interval
-  Assessment: Ready to proceed
-
-You: [Fix progress indicators]
-[Continue to Task 3]
-```
+- Critical issues: report clearly; fix if the user asked you to address review findings.
+- Important issues: explain impact before proceeding.
+- Minor issues: note for follow-up unless user asks to fix.
+- If reviewer is wrong, push back with evidence.
 
 ## Integration with Workflows
 
-**Subagent-Driven Development:**
-- Review after EACH task
-- Catch issues before they compound
-- Fix before moving to next task
-
-**Executing Plans:**
-- Review after each batch (3 tasks)
-- Get feedback, apply, continue
-
-**Ad-Hoc Development:**
-- Review before merge
-- Review when stuck
+- `subagent-driven-development` may pause and offer a code review checkpoint, but must not dispatch it without user instruction.
+- `executing-plans` may report that a batch is ready for review, but must continue only according to the user's direction.
+- `finishing-a-development-branch` may recommend pre-merge code review, but must wait for user approval.
 
 ## Red Flags
 
-**Never:**
-- Skip review because "it's simple"
-- Ignore Critical issues
-- Proceed with unfixed Important issues
-- Argue with valid technical feedback
+Never:
 
-**If reviewer wrong:**
-- Push back with technical reasoning
-- Show code/tests that prove it works
-- Request clarification
+- Auto-dispatch code review because a task finished.
+- Treat review checkpoints as implicit permission.
+- Auto-fix review feedback when the user only asked for a report.
+- Proceed with known critical issues without telling the user.
 
-See template at: requesting-code-review/code-reviewer.md
+See template at: `requesting-code-review/code-reviewer.md`

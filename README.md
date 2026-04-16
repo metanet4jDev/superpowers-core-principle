@@ -10,7 +10,7 @@ Once it's teased a spec out of the conversation, it shows it to you in chunks sh
 
 After you've signed off on the design, your agent puts together an implementation plan that's clear enough for an enthusiastic junior engineer with poor taste, no judgement, no project context, and an aversion to testing to follow. It emphasizes true red/green TDD, YAGNI (You Aren't Gonna Need It), and DRY. 
 
-Next up, once you say "go", it launches a *subagent-driven-development* process, having agents work through each engineering task, inspecting and reviewing their work, and continuing forward. It's not uncommon for Claude to be able to work autonomously for a couple hours at a time without deviating from the plan you put together.
+Next up, once you say "go", it can launch a *subagent-driven-development* process, having agents work through each engineering task and report back. Design, plan, and code reviews are offered as checkpoints, but they only run when you explicitly ask for them.
 
 There's a bunch more to it, but that's the core of the system. And because the skills trigger automatically, you don't need to do anything special. Your coding agent just has Superpowers.
 
@@ -100,19 +100,21 @@ Start a new session in your chosen platform and ask for something that should tr
 
 ## The Basic Workflow
 
-1. **brainstorming** - Activates before writing code. Refines rough ideas through questions, explores alternatives, presents design in sections for validation. Saves design document.
+1. **brainstorming** - Activates before writing code. Refines rough ideas through questions, explores alternatives, and gets the design direction approved.
 
-2. **using-git-worktrees** - Activates after design approval. Creates isolated workspace on new branch, runs project setup, verifies clean test baseline.
+2. **writing-detailed-design** - Activates after design approval. Writes the detailed design and companion artifacts, referencing the independent core cognition document.
 
-3. **writing-plans** - Activates with approved design. Breaks work into bite-sized tasks (2-5 minutes each). Every task has exact file paths, complete code, verification steps.
+3. **using-git-worktrees** - Activates after design approval. Creates isolated workspace on new branch, runs project setup, verifies clean test baseline.
 
-4. **subagent-driven-development** or **executing-plans** - Activates with plan. Dispatches fresh subagent per task with two-stage review (spec compliance, then code quality), or executes in batches with human checkpoints.
+4. **writing-plans** - Activates with approved detailed design. Breaks work into bite-sized tasks (2-5 minutes each). Every task has exact file paths, complete code, verification steps.
 
-5. **test-driven-development** - Activates during implementation. Enforces RED-GREEN-REFACTOR: write failing test, watch it fail, write minimal code, watch it pass, commit. Deletes code written before tests.
+5. **subagent-driven-development** or **executing-plans** - Activates with plan. Dispatches fresh implementer subagents per task, or executes in batches with human checkpoints. Design, plan, and code review run only when explicitly requested.
 
-6. **requesting-code-review** - Activates between tasks. Reviews against plan, reports issues by severity. Critical issues block progress.
+6. **test-driven-development** - Activates during implementation. Enforces RED-GREEN-REFACTOR: write failing test, watch it fail, write minimal code, watch it pass, commit. Deletes code written before tests.
 
-7. **finishing-a-development-branch** - Activates when tasks complete. Verifies tests, presents options (merge/PR/keep/discard), cleans up worktree.
+7. **requesting-code-review** - Activates only when explicitly requested. Reviews against plan, reports issues by severity.
+
+8. **finishing-a-development-branch** - Activates when tasks complete. Verifies tests, presents options (merge/PR/keep/discard), cleans up worktree.
 
 **The agent checks for relevant skills before any task.** Mandatory workflows, not suggestions.
 
@@ -129,14 +131,16 @@ Start a new session in your chosen platform and ask for something that should tr
 
 **Collaboration** 
 - **brainstorming** - Socratic design refinement
+- **writing-detailed-design** - Detailed design documents and companion artifacts
+- **reviewing-design-artifacts** - User-triggered check for core cognition plus detailed design artifacts
 - **writing-plans** - Detailed implementation plans
 - **executing-plans** - Batch execution with checkpoints
 - **dispatching-parallel-agents** - Concurrent subagent workflows
-- **requesting-code-review** - Pre-review checklist
+- **requesting-code-review** - User-triggered code review
 - **receiving-code-review** - Responding to feedback
 - **using-git-worktrees** - Parallel development branches
 - **finishing-a-development-branch** - Merge/PR decision workflow
-- **subagent-driven-development** - Fast iteration with two-stage review (spec compliance, then code quality)
+- **subagent-driven-development** - Fast implementation with user-triggered review checkpoints
 
 **Meta**
 - **writing-skills** - Create new skills following best practices (includes testing methodology)

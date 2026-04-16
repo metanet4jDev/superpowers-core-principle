@@ -33,7 +33,7 @@ Task tool (general-purpose):
     2. Write tests (following TDD if task says to)
     3. Verify implementation works
     4. Commit your work
-    5. Self-review (see below)
+    5. Run the required completion checks (see below)
     6. Report back
 
     Work from: [directory]
@@ -71,9 +71,9 @@ Task tool (general-purpose):
     The controller can provide more context, re-dispatch with a more capable model,
     or break the task into smaller pieces.
 
-    ## Before Reporting Back: Self-Review
+    ## Before Reporting Back: Completion Checks
 
-    Review your work with fresh eyes. Ask yourself:
+    Check your work before reporting. This is not a formal review; formal spec or code review only runs when the user explicitly asks for it.
 
     **Completeness:**
     - Did I fully implement everything in the spec?
@@ -95,7 +95,7 @@ Task tool (general-purpose):
     - Did I follow TDD if required?
     - Are tests comprehensive?
 
-    If you find issues during self-review, fix them now before reporting.
+    If you find issues during these checks, fix them now before reporting.
 
     ## Report Format
 
@@ -104,7 +104,7 @@ Task tool (general-purpose):
     - What you implemented (or what you attempted, if blocked)
     - What you tested and test results
     - Files changed
-    - Self-review findings (if any)
+    - Completion-check findings (if any)
     - Any issues or concerns
 
     Use DONE_WITH_CONCERNS if you completed the work but have doubts about correctness.

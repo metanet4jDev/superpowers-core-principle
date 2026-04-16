@@ -1,49 +1,58 @@
 # Plan Document Reviewer Prompt Template
 
-Use this template when dispatching a plan document reviewer subagent.
+Use this template only when the user explicitly asks to review an implementation plan. Do not dispatch it automatically after writing or updating a plan.
 
-**Purpose:** Verify the plan is complete, matches the spec, and has proper task decomposition.
+**Purpose:** Verify the plan is complete, executable, and strictly aligned with the design/core-cognition source documents.
 
-**Dispatch after:** The complete plan is written.
+**Dispatch after:** Each plan chunk is written, or after the full plan is written if it is small.
 
 ```
 Task tool (general-purpose):
-  description: "Review plan document"
+  description: "Review implementation plan"
   prompt: |
-    You are a plan document reviewer. Verify this plan is complete and ready for implementation.
+    You are an implementation plan reviewer. Review the provided plan artifacts only. Do not rely on conversation history.
 
-    **Plan to review:** [PLAN_FILE_PATH]
-    **Spec for reference:** [SPEC_FILE_PATH]
+    **Plan entry:** [PLAN_PATH]
+    **Current chunk or part:** [PLAN_CHUNK_OR_PART_PATH]
+    **Design document:** [DESIGN_DOC_PATH]
+    **Core cognition document:** [CORE_COGNITION_PATH]
+    **Companion artifacts:** [LIST_PATHS]
 
     ## What to Check
 
     | Category | What to Look For |
     |----------|------------------|
-    | Completeness | TODOs, placeholders, incomplete tasks, missing steps |
-    | Spec Alignment | Plan covers spec requirements, no major scope creep |
-    | Task Decomposition | Tasks have clear boundaries, steps are actionable |
-    | Buildability | Could an engineer follow this plan without getting stuck? |
+    | Source alignment | No additions, deletions, or semantic changes relative to design/core cognition |
+    | Source references | Every task/step cites source sections such as `Design §x.y` or `Core Cognition §a.b` |
+    | Entry contract | `implementation-plan.md` is the single entry; split parts are ordered and linked |
+    | Task sequencing | Mandatory sequencing gate exists; each task ends by marking itself complete |
+    | Task decomposition | Each task is small, serial, independently meaningful, and actionable |
+    | TDD | Tests are written and run before implementation where behavior changes |
+    | Buildability | Commands, expected outputs, files, code snippets, and verification steps are concrete |
+    | Comments | Implementation steps explicitly require code comments aligned to source docs |
+    | Placeholders | No TODO/TBD/fill-in/similar-to/hand-wavy steps |
+    | File limits | Each file <=1000 lines; each `## Chunk N` <=500 lines |
 
     ## Calibration
 
-    **Only flag issues that would cause real problems during implementation.**
-    An implementer building the wrong thing or getting stuck is an issue.
-    Minor wording, stylistic preferences, and "nice to have" suggestions are not.
+    Flag only issues that would cause an implementer to build the wrong thing, get stuck, skip verification, or drift from the design.
+    Minor wording and style preferences are advisory only.
 
-    Approve unless there are serious gaps — missing requirements from the spec,
-    contradictory steps, placeholder content, or tasks so vague they can't be acted on.
-
-    ## Output Format
+    ## Required Output
 
     ## Plan Review
 
     **Status:** Approved | Issues Found
 
     **Issues (if any):**
-    - [Task X, Step Y]: [specific issue] - [why it matters for implementation]
+    - [Blocker|Major|Minor] [Task/Step/Section]: [specific issue]
+      - Evidence: <specific plan text or missing item>
+      - Violated rule: <which plan rule is violated>
+      - Fix direction: <how to fix>
+      - Verification: <how to confirm the fix worked>
 
     **Recommendations (advisory, do not block approval):**
     - [suggestions for improvement]
 ```
 
-**Reviewer returns:** Status, Issues (if any), Recommendations
+**Reviewer returns:** Status, blocking issues, advisory recommendations.
