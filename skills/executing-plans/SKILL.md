@@ -12,7 +12,7 @@ description: 当你已经有一份书面的实现计划，并需要在独立会�
 **开始时声明：** `"I'm using the executing-plans skill to implement this plan."`
 **开始时必需技能：** `"I'm using the planning-with-files-zh skill to set up and maintain execution tracking files."`
 
-**注意：** 要告诉你的人工协作者，Superpowers 在可以使用子代理时效果会明显更好。如果运行平台支持子代理（例如 Claude Code 或 Codex），应优先使用 `superpowers:subagent-driven-development`，而不是这个技能。
+**注意：** 子代理（`superpowers:subagent-driven-development`）仅在用户明确要求时才使用。默认情况下，按本技能流程逐任务串行执行，不主动分派子代理。
 
 ## 流程
 
