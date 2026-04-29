@@ -73,6 +73,4 @@ description: 当你已经有一份书面的实现计划，并需要在独立会�
 
 **必需工作流技能：**
 - **planning-with-files-zh**：必需。用于在工具调用和跨会话中持久化 plan/progress/findings 状态（位于 `/home/haodev/.agents/skills/planning-with-files-zh`）
-- **superpowers:using-git-worktrees**：必需。用于在开始前建立隔离工作区
-- **superpowers:writing-plans**：用于创建本技能要执行的计划
-- **superpowers:finishing-a-development-branch**：用于在开发完成后收尾
+

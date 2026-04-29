@@ -1,145 +1,145 @@
 ---
 name: subagent-driven-development
-description: Use when executing implementation plans with independent tasks in the current session.
+description: 当你需要在当前会话中执行一份由独立任务组成的实现计划时使用。
 ---
 
-# Subagent-Driven Development
+# 子代理驱动开发
 
-Execute an implementation plan by dispatching fresh implementer subagents for independent tasks. Formal spec review, plan review, and code review are user-triggered only.
+通过派发全新的实现型子代理来执行实现计划，每个子代理负责独立任务。正式的规格评审、计划评审和代码评审都只能由用户触发。
 
-Core principles:
+核心原则：
 
-- Fresh implementer subagent per task.
-- Controller provides exact task text and context; subagents do not read the whole plan by default.
-- Subagents verify their own implementation with tests and commands required by the plan.
-- Formal review checkpoints are offered, not automatically executed.
+- 每个任务使用一个全新的实现型子代理。
+- 控制器只提供精确的任务文本和必要上下文；默认不要让子代理自己去读整份计划。
+- 子代理必须用计划要求的测试和命令自行验证实现结果。
+- 正式评审检查点只提供给用户选择，不能自动执行。
 
-## Review Trigger Rule
+## 评审触发规则
 
-Design review, plan review, spec compliance review, and code quality review must not run automatically.
+设计评审、计划评审、规格符合性评审和代码质量评审都不能自动运行。
 
-Allowed:
+允许：
 
-- “Task N is complete. Tell me if you want me to run spec or code review before continuing.”
-- Continue only according to the user's instruction.
+- “任务 N 已完成。如果你愿意，我可以在继续前先跑规格评审或代码评审。”
+- 后续动作只能根据用户指示继续。
 
-Forbidden:
+禁止：
 
-- Dispatching spec reviewer after every task without user instruction.
-- Dispatching code quality reviewer after every task without user instruction.
-- Dispatching final code reviewer automatically at the end.
-- Re-reviewing after fixes unless the user explicitly asks.
+- 没有用户指示，就在每个任务后自动派发规格评审代理
+- 没有用户指示，就在每个任务后自动派发代码质量评审代理
+- 在所有任务结束后自动派发最终代码评审
+- 修完评审问题后，在用户未明确要求的情况下再次复审
 
-## When to Use
+## 何时使用
 
-Use when:
+以下情况适用：
 
-- There is an implementation plan.
-- Tasks are mostly independent.
-- You can stay in the current session as coordinator.
-- The user wants subagent-driven execution or the harness supports it and the plan allows it.
+- 已经有实现计划
+- 各任务大多彼此独立
+- 你可以在当前会话中充当协调者
+- 用户希望用子代理执行，或当前 harness 支持这种方式，且计划允许这样做
 
-Use `executing-plans` instead when:
+以下情况改用 `executing-plans`：
 
-- Tasks are tightly coupled.
-- The environment does not support subagents.
-- The user wants single-session execution.
+- 任务之间高度耦合
+- 当前环境不支持子代理
+- 用户希望在单一会话里自行完成执行
 
-## Process
+## 流程
 
-1. Read the plan entry and extract all tasks with full task text.
-2. Create a task tracker.
-3. For each task:
-   - Dispatch one implementer subagent with full task text, relevant context, working directory, source references, and verification commands.
-   - Answer implementer questions.
-   - Wait for implementer result.
-   - Inspect status, changed files, commits, and test results enough to coordinate safely.
-   - If implementation completed, offer a user-triggered review checkpoint.
-   - Move to the next task only if the plan sequencing gate and user direction allow it.
-4. After all tasks complete, summarize changed files, verification, commits, and unresolved concerns.
-5. Offer final code review as an option, but do not run it automatically.
-6. When user chooses to finish, use `superpowers:finishing-a-development-branch`.
+1. 读取计划条目，提取所有任务及其完整任务文本。
+2. 建立任务跟踪器。
+3. 对每个任务依次执行：
+   - 派发一个实现型子代理，并给它完整任务文本、相关上下文、工作目录、源码参考和验证命令。
+   - 回答实现代理提出的问题。
+   - 等待实现代理返回结果。
+   - 读取它的状态、改动文件、提交和测试结果，做到足够安全地协调后续工作。
+   - 如果实现已完成，则提供一个由用户触发的评审检查点。
+   - 只有当计划的顺序门控和用户指示都允许时，才能进入下一个任务。
+4. 所有任务完成后，总结改动文件、验证情况、提交记录和未解决风险。
+5. 提供“是否进行最终代码评审”的选项，但不要自动执行。
+6. 当用户决定收尾时，使用 `superpowers:finishing-a-development-branch`。
 
-## Implementer Status
+## 实现代理状态
 
-Implementer subagents report one of four statuses:
+实现代理会返回以下四种状态之一：
 
-- `DONE`：task completed and required verification passed.
-- `DONE_WITH_CONCERNS`：task completed, but there are doubts or risks.
-- `NEEDS_CONTEXT`：subagent needs more information.
-- `BLOCKED`：subagent cannot complete the task.
+- `DONE`：任务完成，且所需验证已通过。
+- `DONE_WITH_CONCERNS`：任务完成，但存在疑点或风险。
+- `NEEDS_CONTEXT`：子代理需要更多信息。
+- `BLOCKED`：子代理无法完成该任务。
 
-Handling:
+处理方式：
 
-- `DONE`：record result, offer review checkpoint if useful, then follow user direction.
-- `DONE_WITH_CONCERNS`：read concerns and decide whether to clarify, fix, or ask user before continuing.
-- `NEEDS_CONTEXT`：provide missing context and redispatch.
-- `BLOCKED`：diagnose whether context, plan, model capability, or task size is the issue; do not retry unchanged.
+- `DONE`：记录结果，如有必要提供评审检查点，然后按用户指示继续。
+- `DONE_WITH_CONCERNS`：阅读风险说明，再决定是澄清、修复，还是先征求用户意见。
+- `NEEDS_CONTEXT`：补充缺失上下文后重新派发。
+- `BLOCKED`：诊断问题出在上下文、计划、模型能力还是任务规模；不要在条件不变时原样重试。
 
-## Model Selection
+## 模型选择
 
-Use the least powerful model that can handle the role:
+根据角色使用“足够用”的最低模型：
 
-- Mechanical isolated tasks: fast, cheap model.
-- Multi-file integration or debugging: standard model.
-- Architecture judgment or explicit review requested by the user: most capable available model.
+- 机械式、隔离良好的任务：用快且便宜的模型。
+- 涉及多文件集成或调试：用标准模型。
+- 涉及架构判断，或用户明确要求正式评审：用当前可用的最强模型。
 
-## Prompt Templates
+## 提示词模板
 
-- `./implementer-prompt.md`：implementer subagent.
-- `./spec-reviewer-prompt.md`：user-triggered spec compliance review.
-- `./code-quality-reviewer-prompt.md`：user-triggered code quality review.
+- `./implementer-prompt.md`：实现型子代理
+- `./spec-reviewer-prompt.md`：由用户触发的规格符合性评审
+- `./code-quality-reviewer-prompt.md`：由用户触发的代码质量评审
 
-## Example Workflow
+## 示例工作流
 
 ```text
-You: I'm using Subagent-Driven Development to execute this plan.
+你：我正在使用子代理驱动开发来执行这份计划。
 
-[Read plan, extract Task 1, dispatch implementer.]
+[读取计划，提取任务 1，派发实现代理。]
 
-Implementer:
+实现代理：
   Status: DONE
   Files changed: ...
   Tests: passing
   Concerns: none
 
-You:
-  Task 1 is implemented and tests passed.
-  Tell me if you want spec review or code review before I continue to Task 2.
+你：
+  任务 1 已实现，测试也通过了。
+  如果你愿意，我可以在继续任务 2 之前先做规格评审或代码评审。
 
-User:
-  Continue.
+用户：
+  继续。
 
-[Proceed to Task 2.]
+[继续执行任务 2。]
 ```
 
-If the user says “run code review,” use `requesting-code-review`. If the user says “run spec compliance review,” use `spec-reviewer-prompt.md`. After review findings, ask or follow the user's explicit instruction before applying fixes.
+如果用户说“run code review”，使用 `requesting-code-review`。如果用户说“run spec compliance review”，使用 `spec-reviewer-prompt.md`。评审结果返回后，只有在用户明确要求时才应用修复，或按用户已给出的明确授权执行。
 
-## Red Flags
+## 风险信号
 
-Never:
+绝不要：
 
-- Start implementation on main/master without explicit user consent.
-- Dispatch multiple implementation subagents that edit overlapping files.
-- Make implementer subagents read the full plan when the controller can provide task text.
-- Ignore implementer questions.
-- Treat review checkpoints as permission to review.
-- Auto-fix review feedback when the user only asked for a report.
-- Move to the next task if the plan sequencing gate forbids it.
+- 在未得到用户明确同意的情况下，直接在 `main/master` 上开始实现
+- 同时派发多个会编辑重叠文件的实现代理
+- 在控制器本可以直接提供任务文本时，让实现代理自己去读整份计划
+- 忽略实现代理的问题
+- 把评审检查点当成默认授权
+- 当用户只要求出评审报告时，自动修复评审反馈
+- 在计划顺序门控不允许的情况下推进到下一个任务
 
-## Integration
+## 集成关系
 
-Required workflow skills:
+必需的工作流技能：
 
-- `superpowers:using-git-worktrees`：set up isolated workspace before starting, unless the user explicitly chose a different safe workflow.
-- `superpowers:writing-plans`：creates the plan this skill executes.
-- `superpowers:requesting-code-review`：only when the user asks for code review.
-- `superpowers:finishing-a-development-branch`：complete development after all tasks.
+- `superpowers:using-git-worktrees`：开始前准备隔离工作区，除非用户明确选择了其他安全工作流
+- `superpowers:writing-plans`：生成本技能要执行的计划
+- `superpowers:requesting-code-review`：仅在用户要求代码评审时使用
+- `superpowers:finishing-a-development-branch`：所有任务完成后的开发收尾
 
-Subagents should use:
+子代理应使用：
 
-- `superpowers:test-driven-development` when the task changes behavior and the plan requires TDD.
+- `superpowers:test-driven-development`：当任务会改变行为，且计划要求 TDD 时使用
 
-Alternative workflow:
+替代工作流：
 
-- `superpowers:executing-plans` for single-session execution.
+- `superpowers:executing-plans`：用于单会话执行
