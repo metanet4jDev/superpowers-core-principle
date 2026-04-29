@@ -1,6 +1,6 @@
 ---
 name: writing-skills
-description: Use when creating new skills, editing existing skills, or verifying skills work before deployment
+description: 仅在用户明确要求创建技能、修改技能、验证技能，或明确要求使用 writing-skills 时使用
 ---
 
 # Writing Skills
@@ -8,6 +8,8 @@ description: Use when creating new skills, editing existing skills, or verifying
 ## Overview
 
 **Writing skills IS Test-Driven Development applied to process documentation.**
+
+**限制条件：** 只有在用户明确要求创建、修改或验证 skill 时才能使用本技能；不能因为当前工作涉及 `SKILL.md` 就自动触发。
 
 **Personal skills live in agent-specific directories (`~/.claude/skills` for Claude Code, `~/.agents/skills/` for Codex)** 
 

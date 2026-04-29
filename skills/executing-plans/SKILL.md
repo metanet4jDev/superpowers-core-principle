@@ -1,6 +1,6 @@
 ---
 name: executing-plans
-description: 当你已经有一份书面的实现计划，并需要在独立会话中执行它时使用；正式 review 只在用户明确要求后触发
+description: 仅在用户明确要求按现有实现计划执行，或明确要求使用 executing-plans 时使用；正式 review 只在用户明确要求后触发
 ---
 
 # 执行计划
@@ -8,6 +8,8 @@ description: 当你已经有一份书面的实现计划，并需要在独立会�
 ## 概览
 
 加载计划，检查是否存在阻塞执行的明显缺口，执行全部任务，并在完成后汇报。正式设计/计划/代码 review 不自动执行，只在用户明确要求后触发。
+
+**限制条件：** 即使当前已经有现成计划，也不能自动使用本技能；只有在用户明确要求按计划执行时才可启用。
 
 **开始时声明：** `"I'm using the executing-plans skill to implement this plan."`
 **开始时必需技能：** `"I'm using the planning-with-files-zh skill to set up and maintain execution tracking files."`
@@ -39,9 +41,9 @@ description: 当你已经有一份书面的实现计划，并需要在独立会�
 ### 第 3 步：完成开发
 
 当所有任务都完成且验证通过后：
-- 声明：`"I'm using the finishing-a-development-branch skill to complete this work."`
-- **必需子技能：** 使用 `superpowers:finishing-a-development-branch`
-- 按该技能要求完成测试验证、展示选项并执行最终选择
+- 总结本次实现、验证结果、当前分支状态和遗留风险
+- 告诉用户当前工作已经进入可收尾状态
+- 只有在用户明确要求收尾、合并、开 PR、保留分支或丢弃工作时，才使用 `superpowers:finishing-a-development-branch`
 
 ## 何时停止并求助
 
@@ -73,4 +75,3 @@ description: 当你已经有一份书面的实现计划，并需要在独立会�
 
 **必需工作流技能：**
 - **planning-with-files-zh**：必需。用于在工具调用和跨会话中持久化 plan/progress/findings 状态（位于 `/home/haodev/.agents/skills/planning-with-files-zh`）
-

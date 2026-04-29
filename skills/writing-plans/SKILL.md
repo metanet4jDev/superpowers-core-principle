@@ -1,6 +1,6 @@
 ---
 name: writing-plans
-description: Use before coding when an approved detailed design needs an implementation plan.
+description: 仅在用户明确要求编写实现计划、implementation plan，或明确要求使用 writing-plans 时使用。
 ---
 
 # 编写实现计划
@@ -8,6 +8,8 @@ description: Use before coding when an approved detailed design needs an impleme
 ## Overview
 
 本技能从已批准的详细设计事实源生成实现计划。计划必须足够具体，让一个熟练但不了解代码库和业务背景的工程师也能按步骤完成实现、测试和提交。
+
+**限制条件：** 只有在用户明确要求编写计划时才能使用本技能；即使看起来“现在应该先写计划”，也不能自动触发。
 
 开始时声明：
 
