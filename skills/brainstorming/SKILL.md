@@ -12,7 +12,8 @@ description: "Use before implementation to clarify a feature, system, component,
 - 先用 `superpowers:core-principle` 建立 `V0` 认知骨架。
 - 在探索代码、澄清需求、比较方案时，只要出现新证据、新约束或冲突结论，就把核心认知更新为 `V1..Vn`。
 - 写入或引用任何任务级设计/计划路径前，先用 `superpowers:document-workspace-layout` 解析 `DESIGN_DOC_PATH`、`CORE_COGNITION_PATH`、`DESIGN_ARTIFACTS_DIR`、`PLAN_PATH`、`PLAN_CHANGELOG`、`PLAN_WORKSPACE_DIR` 和 `TASK_WORKSPACE_DIR`。
-- 设计被批准后，调用 `superpowers:writing-detailed-design` 写入或更新详细设计产物；详细设计只引用独立核心认知文档。
+- 设计被批准后，进入详细设计前，必须先完成 Foundation Gate：基于真实代码库、真实数据库环境和真实依赖环境，按功能模块列出 API 清单、时序图清单、DDL/存储约束和数据一致性方案，并等待人工确认。
+- Foundation Gate 人工确认后，调用 `superpowers:writing-detailed-design` 写入或更新详细设计产物；详细设计只引用独立核心认知文档。
 - 设计产物检查、计划 review、代码 review 都不能自动触发；只能在用户明确要求后执行。
 - 详细设计完成并经用户确认后，才能调用 `superpowers:writing-plans`。
 
@@ -58,10 +59,13 @@ Do not use when:
 7. **分节展示设计并取得批准**
    覆盖架构、组件、数据流、状态、错误处理、测试和风险。复杂设计分节确认；简单设计可以很短，但仍需明确批准。
 
-8. **进入详细设计**
-   用户批准方案后，先确保 `CORE_COGNITION_PATH` 保存 `Vfinal`，再调用 `writing-detailed-design` 写 `design-codex.md` 和配套产物。可以提示用户“如需整体检查，可明确要求触发”，但不能自动执行检查。
+8. **完成 Foundation Gate**
+   用户批准方案后，先确保 `CORE_COGNITION_PATH` 保存 `Vfinal`，再在 `DESIGN_ARTIFACTS_DIR/foundation-gate.md` 按功能模块列出地基产物：真实依据、模块边界、功能点、API、主时序图、DDL/存储约束和数据一致性方案。API、主时序图和 DDL 必须基于真实代码库、真实数据库环境和真实依赖环境。状态不是 `confirmed` 时，不得进入详细设计。
 
-9. **进入计划**
+9. **进入详细设计**
+   Foundation Gate 人工确认后，调用 `writing-detailed-design` 写 `design-codex.md` 和配套产物。可以提示用户“如需整体检查，可明确要求触发”，但不能自动执行检查。
+
+10. **进入计划**
    详细设计完成并经用户确认后，调用 `writing-plans`。不要直接进入实现。
 
 ## Core-Cognition Discipline
@@ -95,9 +99,9 @@ Do not use when:
 - 备选方案各自适用什么条件。
 - 哪些核心认知支撑了方案。
 - 哪些 `待确认` 会影响最终设计或计划。
-- 是否需要配套文件：类图、时序图、状态图、存储、运行时状态、API/事件契约、迁移兼容说明。
+- 是否需要配套文件：Foundation Gate、类图、时序图、状态图、存储、运行时状态、API/事件契约、迁移兼容说明。
 
-不要在 brainstorming 阶段把完整 DDL、全量接口字段、完整状态表或实现步骤铺开。这些属于 `writing-detailed-design` 或 `writing-plans`。
+不要在 brainstorming 阶段把实现步骤铺开。完整 DDL、全量接口字段和完整状态表默认属于 `writing-detailed-design`；但 Foundation Gate 是例外，必须在进入详细设计前以模块化清单和配套文件方式完成地基确认。
 
 ## Document Handoff
 
@@ -105,6 +109,7 @@ Do not use when:
 
 - 核心认知 `Vfinal`。
 - 被批准的推荐方案和被拒绝的备选方案摘要。
+- 已确认的 `DESIGN_ARTIFACTS_DIR/foundation-gate.md`。
 - 用户明确确认的范围、限制和成功标准。
 - 仍然存在但不阻塞详细设计的 `待确认`。
 - 代码/文档/需求来源锚点。
@@ -141,6 +146,7 @@ Do not use when:
 
 - 核心认知已经到 `Vfinal`，关键 `待确认` 已收敛或明确不阻塞。
 - 用户已经批准推荐方案。
+- Foundation Gate 已按功能模块列出 API、时序图、DDL/存储和一致性方案，且状态为 `confirmed`。
 - 方案的范围适合一份详细设计；若不适合，已拆成子项目。
 - 需要的配套设计产物已识别。
 - 下一步是 `writing-detailed-design`，不是实现。

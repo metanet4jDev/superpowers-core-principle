@@ -19,6 +19,7 @@ description: 仅在用户明确要求编写实现计划、implementation plan，
 
 - 计划只消费设计事实，不新增、删除或语义改写设计。
 - 计划 review 不能自动执行；只能在用户明确要求后触发。
+- 代码 review 必须进入计划门禁；未完成 review 或未记录人工豁免时，编码计划不能标记完成。
 - 计划任务必须小步快跑，默认每步 2-5 分钟。
 - 坚持 DRY、YAGNI、TDD 和频繁提交。
 - 每个任务都要给出准确文件路径、实际代码/命令、预期结果和验证方式。
@@ -91,9 +92,10 @@ description: 仅在用户明确要求编写实现计划、implementation plan，
 
 - [ ] After all steps in the current task are done, mark that task as completed (set all checkboxes in that task to `[x]`).
 - [ ] Do not start the next task before the current task is marked completed.
+- [ ] After coding and unit tests pass, stop at the Code Review Gate. Do not mark the coding plan complete until review is completed or a human explicitly records a waiver.
 ```
 
-每个任务最后一步必须写明“标记当前任务已完成”。
+每个任务最后一步必须写明“标记当前任务已完成”。涉及代码修改的任务必须在任务末尾设置 Code Review Gate，提醒协作者可以触发代码评审；未经用户明确指令，不自动派发 reviewer。
 
 ## Plan Header
 
@@ -177,6 +179,22 @@ git commit -m "feat: add specific feature"
 Set all checkboxes in this task to `[x]`. Do not start Task N+1 before this is done.
 ````
 
+非最后一个编码任务可按上述模板完成。涉及代码修改的最后一个任务必须把 Code Review Gate 放在“标记任务完成”之前：
+
+```markdown
+### Code Review Gate (Mandatory)
+
+- [ ] Confirm all required unit tests pass.
+- [ ] Tell the human collaborator that code review is available and required before this coding plan is complete.
+- [ ] If the human requests review, run `requesting-code-review` and address feedback only as authorized.
+- [ ] If the human waives review, record the waiver reason and approver in this plan.
+- [ ] Do not mark the coding plan complete until review is done or waiver is recorded.
+
+- [ ] **Final Step: Mark the final coding task and coding plan as completed**
+
+Set all checkboxes in this final coding task to `[x]` only after review is done or waiver is recorded.
+```
+
 ## Plan Splitting
 
 如果单个计划文件足够容纳全部内容，就把完整计划写进 `PLAN_PATH`。
@@ -242,6 +260,7 @@ Set all checkboxes in this task to `[x]`. Do not start Task N+1 before this is d
 - `PLAN_PATH` 存在，且是唯一入口。
 - 事实来源路径都是绝对路径。
 - 每个任务都有来源章节、文件范围、测试、命令、预期结果和提交步骤。
+- 涉及代码修改的计划包含 Code Review Gate，且没有把“计划里的 review 检查点”当作自动 review 授权。
 - 每个实现步骤都要求注释与设计/核心认知对齐。
 - 没有占位符和语义漂移。
 - 计划足以交给不了解背景的工程师执行。

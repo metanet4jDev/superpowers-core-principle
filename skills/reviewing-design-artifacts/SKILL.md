@@ -48,10 +48,10 @@ Do not use when:
 ## Review Order
 
 1. **核心认知独立检查**
-   使用 `core-principle` 的 `validation-checklist.md`。只检查核心认知的边界、7 维、6 标题、持久化事实和单一事实源。
+   使用 `core-principle` 的 `validation-checklist.md`。只检查核心认知的边界、7 维、7 标题、术语、持久化事实和单一事实源。
 
 2. **详细设计独立检查**
-   使用 `writing-detailed-design` 的 `validation-checklist.md`。只检查主文档、配套文件、API/事件契约、功能点、验收和 plan drift。
+   使用 `writing-detailed-design` 的 `validation-checklist.md`。只检查 Foundation Gate、主文档、配套文件、API/事件契约、功能点、验收和 plan drift。
 
 3. **跨文档一致性**
    检查：
@@ -59,7 +59,9 @@ Do not use when:
    - 详细设计是否引用 `CORE_COGNITION_PATH`。
    - 详细设计是否复制或重定义核心认知事实。
    - 功能点引用的实体、关系、属性、状态是否能回到核心认知定位。
+   - 详细设计使用的术语是否能回到核心认知的 `术语与命名`。
    - 核心认知的功能总览是否能覆盖详细设计的功能点范围。
+   - Foundation Gate 的模块、API、时序图、DDL/存储和一致性方案是否被详细设计消费。
    - 全局约束是否在详细设计中被消费，而不是被局部规则改写。
    - 配套文件是否被主文档引用，且不与主文档重复定义。
    - 若 `PLAN_PATH` 已存在，详细设计变更是否同步到计划或记录为不影响。
@@ -88,6 +90,7 @@ Do not use when:
 ### Coverage
 
 - 核心认知独立检查：
+- Foundation Gate：
 - 详细设计独立检查：
 - 跨文档引用：
 - 去重与单一事实源：

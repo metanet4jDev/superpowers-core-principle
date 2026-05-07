@@ -8,6 +8,7 @@ description: 仅在用户明确要求按现有实现计划执行，或明确要�
 ## 概览
 
 加载计划，检查是否存在阻塞执行的明显缺口，执行全部任务，并在完成后汇报。正式设计/计划/代码 review 不自动执行，只在用户明确要求后触发。
+如果计划包含 Code Review Gate，必须停在该门禁：未完成代码评审或未记录人工豁免时，不得宣称编码计划完成。
 
 **限制条件：** 即使当前已经有现成计划，也不能自动使用本技能；只有在用户明确要求按计划执行时才可启用。
 
@@ -49,13 +50,15 @@ description: 仅在用户明确要求按现有实现计划执行，或明确要�
 4. **编码必须使用测试驱动开发（TDD）：** 声明 `"I'm using the test-driven-development skill for coding."`，然后使用 `superpowers:test-driven-development` 技能。先写失败测试，再写最小实现使测试通过，最后重构
 5. 按照要求运行验证；验证命令必须在 `TASK_WORKSPACE_DIR` 中执行
 6. 需要更新 `task_plan.md`、`findings.md` 或 `progress.md` 时，切回 `PLAN_WORKSPACE_DIR` 再写入
-7. 标记为 `completed`
+7. 如果当前任务是最终编码任务且计划包含 Code Review Gate，先提醒协作者可以触发代码评审；没有 review 结果或人工豁免记录时，将当前任务标记为 `pending_review` 或 `blocked`，不要标记为 `completed`
+8. 如果当前任务不是未满足 Code Review Gate 的最终编码任务，标记为 `completed`
 
 ### 第 3 步：完成开发
 
 当所有任务都完成且验证通过后：
 - 总结本次实现、验证结果、当前分支状态和遗留风险
-- 告诉用户当前工作已经进入可收尾状态
+- 如果 Code Review Gate 已完成或已有人工豁免，告诉用户当前工作已经进入可收尾状态
+- 如果 Code Review Gate 未完成，告诉用户代码和验证已到评审门禁，等待 review 或人工豁免后才能完成编码计划
 - 只有在用户明确要求收尾、合并、开 PR、保留分支或丢弃工作时，才使用 `superpowers:finishing-a-development-branch`
 
 ## 何时停止并求助
@@ -90,4 +93,3 @@ description: 仅在用户明确要求按现有实现计划执行，或明确要�
 **必需工作流技能：**
 - **document-workspace-layout**：必需。用于先解析 `DOC_WORKSPACE_ROOT`、`TASK_NAME`、可选 `PLAN_NAME`，确定 `PLAN_WORKSPACE_DIR`、`PLAN_PATH`、三件套写入目录和 `TASK_WORKSPACE_DIR`
 - **planning-with-files-zh**：必需。用于在工具调用和跨会话中持久化 plan/progress/findings 状态（位于 `/home/haodev/.agents/skills/planning-with-files-zh`）
-
