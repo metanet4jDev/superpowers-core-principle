@@ -5,7 +5,7 @@ description: 仅在用户明确要求编写实现计划、implementation plan，
 
 # 编写实现计划
 
-## Overview
+## 概览
 
 本技能从已批准的详细设计事实源生成实现计划。计划必须足够具体，让一个熟练但不了解代码库和业务背景的工程师也能按步骤完成实现、测试和提交。
 
@@ -13,19 +13,20 @@ description: 仅在用户明确要求编写实现计划、implementation plan，
 
 开始时声明：
 
-> "I'm using the writing-plans skill to create the implementation plan."
+> "我正在使用 writing-plans 技能编写实现计划。"
 
 核心原则：
 
 - 计划只消费设计事实，不新增、删除或语义改写设计。
-- 计划 review 不能自动执行；只能在用户明确要求后触发。
-- 代码 review 必须进入计划门禁；未完成 review 或未记录人工豁免时，编码计划不能标记完成。
+- 计划审查不能自动执行；只能在用户明确要求后触发。
+- 涉及代码修改的任务必须在提交前按规范审查代码和测试，并修复审查发现的问题；未完成审查与修复时，不得提交或标记完成。
 - 计划任务必须小步快跑，默认每步 2-5 分钟。
 - 坚持 DRY、YAGNI、TDD 和频繁提交。
-- 每个任务都要给出准确文件路径、实际代码/命令、预期结果和验证方式。
+- 每个任务都要给出准确文件路径、单元测试清单、预期验证语义和执行步骤。
+- 计划中不得写实际测试代码、实现代码、具体测试命令、验证命令或提交命令。
 - 如果事实源缺失或与计划不一致，先回到 `writing-detailed-design` 修设计，再写计划。
 
-## Mandatory Path Contract
+## 强制路径契约
 
 写入或引用任务级路径前，必须先用 `superpowers:document-workspace-layout` 解析：
 
@@ -44,7 +45,7 @@ description: 仅在用户明确要求编写实现计划、implementation plan，
 - 如果计划拆分，入口仍是 `PLAN_PATH`，分片只能放在同一 `PLAN_WORKSPACE_DIR` 下：`implementation-plan-part-01.md`、`implementation-plan-part-02.md`。
 - `planning-with-files-zh` 的 `task_plan.md`、`findings.md`、`progress.md` 必须和 `PLAN_PATH` 同目录。
 
-## Source of Truth Gate
+## 事实源闸门
 
 写计划前必须确认：
 
@@ -55,23 +56,23 @@ description: 仅在用户明确要求编写实现计划、implementation plan，
 
 严格规则：
 
-- 每个任务或步骤都必须显式标注事实来源章节，例如 `Design §6.2`、`Core Cognition §3`。
+- 每个任务或步骤都必须显式标注事实来源章节，例如 `详细设计 §6.2`、`核心认知 §3`。
 - 如果源文档缺少必要事实，停止写计划，先更新设计。
 - 如果实现反馈要求改变行为、状态、接口或存储，先更新设计/核心认知，再更新计划。
 - 任何无法证明与源文档同步的任务都必须阻塞。
 
-## Scope Check
+## 范围检查
 
-如果 spec 覆盖多个彼此独立的子系统，而还没有拆成多个设计或计划，应停止并建议拆分。每份计划必须能独立产出可工作、可测试的软件。
+如果规格覆盖多个彼此独立的子系统，而还没有拆成多个设计或计划，应停止并建议拆分。每份计划必须能独立产出可工作、可测试的软件。
 
 检查：
 
 - 是否跨多个独立子系统。
 - 是否需要多个发布或迁移阶段。
 - 是否存在无法在单份计划中串行完成的工作流。
-- 是否已有 plan drift，需要先同步旧计划。
+- 是否已有计划漂移，需要先同步旧计划。
 
-## File Structure First
+## 先定义文件结构
 
 定义任务前，先写文件结构：
 
@@ -83,40 +84,40 @@ description: 仅在用户明确要求编写实现计划、implementation plan，
 
 文件职责要清晰。经常一起修改的文件可以放在一起；按职责拆分，不按技术层机械拆分。在现有代码库中遵循现有模式，不做无关重构。
 
-## Task Sequencing Gate
+## 任务顺序闸门
 
 计划中必须原样包含以下全局闸门块：
 
 ```markdown
-### 0. Task Sequencing Gate (Mandatory)
+### 0. 任务顺序闸门（强制）
 
-- [ ] After all steps in the current task are done, mark that task as completed (set all checkboxes in that task to `[x]`).
-- [ ] Do not start the next task before the current task is marked completed.
-- [ ] After coding and unit tests pass, stop at the Code Review Gate. Do not mark the coding plan complete until review is completed or a human explicitly records a waiver.
+- [ ] 当前任务所有步骤完成后，将当前任务所有复选框标记为 `[x]`。
+- [ ] 当前任务未标记完成前，不得开始下一个任务。
+- [ ] 涉及代码修改的任务必须先完成 TDD、规范审查、问题修复和提交，才能标记完成。
 ```
 
-每个任务最后一步必须写明“标记当前任务已完成”。涉及代码修改的任务必须在任务末尾设置 Code Review Gate，提醒协作者可以触发代码评审；未经用户明确指令，不自动派发 reviewer。
+每个任务最后一步必须写明“标记当前任务已完成”。涉及代码修改的任务必须在提交前审查代码和测试，修复审查发现的问题后再提交。
 
-## Plan Header
+## 计划头部
 
 `PLAN_PATH` 对应的入口文件必须以如下头部开头：
 
 ```markdown
-# [Feature Name] Implementation Plan
+# [功能名称] 实现计划
 
-> **Source of Truth Declaration (Mandatory)**
-> This plan is written strictly according to the design/core-cognition source documents, with no additions, deletions, or semantic modifications.
+> **事实源声明（强制）**
+> 本计划严格依据详细设计和核心认知事实源文档编写，不新增、不删除、不语义改写。
 >
-> Design Document (absolute path): `/ABS/PATH/TO/design-codex.md`
-> Core Cognition Document (absolute path): `/ABS/PATH/TO/core-cognition.md`
+> 详细设计文档（绝对路径）：`/ABS/PATH/TO/design-codex.md`
+> 核心认知文档（绝对路径）：`/ABS/PATH/TO/core-cognition.md`
 >
-> **For agentic workers:** REQUIRED: Use superpowers:subagent-driven-development (if subagents available) or superpowers:executing-plans to implement this plan. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **给执行代理的要求：** 必须使用 `superpowers:subagent-driven-development`（如果支持子代理）或 `superpowers:executing-plans` 执行本计划。步骤必须使用复选框（`- [ ]`）语法跟踪。
 
-**Goal:** [One sentence describing what this builds]
+**目标：** [一句话说明本计划要实现什么]
 
-**Architecture:** [2-3 sentences about approach]
+**架构：** [2-3 句话说明实现方式]
 
-**Tech Stack:** [Key technologies/libraries]
+**技术栈：** [关键技术/库]
 
 ---
 ```
@@ -125,77 +126,53 @@ description: 仅在用户明确要求编写实现计划、implementation plan，
 
 - 源文档路径必须是绝对路径。
 - 必须声明独立核心认知文档的绝对路径。
-- 如果计划拆分，入口文件必须列出所有 part 文件及执行顺序。
+- 如果计划拆分，入口文件必须列出所有分片文件及执行顺序。
 
-## Task Template
+## 任务模板
 
-每个任务都必须形成一组独立成形的改动。与实现相关的步骤标题必须显式要求代码注释，且注释语义必须与设计/核心认知一致。
+每个任务都必须形成一组独立成形的改动。与实现相关的步骤必须要求执行者按 `skills/test-driven-development/SKILL.md` 完成完整 TDD 流程，并保证必要代码注释与详细设计/核心认知一致。
 
 ````markdown
-### Task N: [Component Name]
+### 任务 N：[组件名称]
 
-**Source:** Design §x.y; Core Cognition §a.b
+**事实来源：** 详细设计 §x.y；核心认知 §a.b
 
-**Files:**
-- Create: `exact/path/to/file.py`
-- Modify: `exact/path/to/existing.py:123-145`
-- Test: `tests/exact/path/to/test.py`
+**涉及文件：**
+- 新建：`exact/path/to/file.py`
+- 修改：`exact/path/to/existing.py:123-145`
+- 测试：`tests/exact/path/to/test.py`
 
-- [ ] **Step 1: Write the failing test**
+- [ ] **步骤 1：列出单元测试**
 
-```python
-def test_specific_behavior():
-    result = function(input)
-    assert result == expected
-```
+只列测试文件、测试方法和覆盖场景，不写测试代码。
 
-- [ ] **Step 2: Run test to verify it fails**
+**单元测试清单：**
+- `tests/exact/path/to/test.py::test_specific_behavior`：覆盖 [具体行为/边界/异常语义]
 
-Run: `pytest tests/path/test.py::test_name -v`
-Expected: FAIL with "function not defined"
+**预期验证语义：**
+- 失败验证：新增单元测试先以符合预期的原因失败。
+- 通过验证：最小实现和必要重构后，相关单元测试通过，行为和必要注释与事实来源一致。
 
-- [ ] **Step 3: Write minimal implementation with required code comments aligned to Design §x.y and Core Cognition §a.b**
+- [ ] **步骤 2：按 TDD 技能完成测试与实现**
 
-```python
-def function(input):
-    # Must match Design §x.y and Core Cognition §a.b.
-    return expected
-```
+按 `skills/test-driven-development/SKILL.md` 执行完整流程：先写失败测试，确认失败原因正确，完成最小实现，确认测试通过，必要时重构并保持测试通过。实现中的必要注释必须与详细设计 §x.y 和核心认知 §a.b 一致。
 
-- [ ] **Step 4: Verify comments and behavior match the source documents, then run test to verify it passes**
+- [ ] **步骤 3：按规范审查代码和测试，并修复问题**
 
-Run: `pytest tests/path/test.py::test_name -v`
-Expected: PASS
+按 `/home/haodev/worksapces/harness-hh/standards/code-rules.md` 和 `/home/haodev/worksapces/harness-hh/standards/testing.md` 审查本任务改动。修复审查发现的问题后，再进入提交步骤。
 
-- [ ] **Step 5: Commit**
+- [ ] **步骤 4：提交**
 
-```bash
-git add tests/path/test.py src/path/file.py
-git commit -m "feat: add specific feature"
-```
+审查问题修复完成后提交本任务改动，不写具体提交命令。
 
-- [ ] **Step 6: Mark Task N as completed, then move to Task N+1**
+- [ ] **最终步骤：标记任务 N 已完成，再进入任务 N+1**
 
-Set all checkboxes in this task to `[x]`. Do not start Task N+1 before this is done.
+将当前任务所有复选框标记为 `[x]`。当前任务完成前，不得开始任务 N+1。
 ````
 
-非最后一个编码任务可按上述模板完成。涉及代码修改的最后一个任务必须把 Code Review Gate 放在“标记任务完成”之前：
+所有涉及代码修改的任务都使用上述模板。代码审查是提交前的强制步骤，不再作为可选的独立代码审查闸门。
 
-```markdown
-### Code Review Gate (Mandatory)
-
-- [ ] Confirm all required unit tests pass.
-- [ ] Tell the human collaborator that code review is available and required before this coding plan is complete.
-- [ ] If the human requests review, run `requesting-code-review` and address feedback only as authorized.
-- [ ] If the human waives review, record the waiver reason and approver in this plan.
-- [ ] Do not mark the coding plan complete until review is done or waiver is recorded.
-
-- [ ] **Final Step: Mark the final coding task and coding plan as completed**
-
-Set all checkboxes in this final coding task to `[x]` only after review is done or waiver is recorded.
-```
-
-## Plan Splitting
+## 计划拆分
 
 如果单个计划文件足够容纳全部内容，就把完整计划写进 `PLAN_PATH`。
 
@@ -212,55 +189,57 @@ Set all checkboxes in this final coding task to `[x]` only after review is done 
 - 每个计划文件 `<=1000` 行。
 - 每个 `## Chunk N: <name>` 分块 `<=500` 行。
 
-## Forbidden Placeholders
+## 禁止占位符
 
 计划中不得出现：
 
 - `TBD`、`TODO`、`implement later`、`fill in details`。
-- “Add appropriate error handling” 但不给具体错误语义。
-- “add validation” 但不给具体字段、条件、预期错误。
-- “Write tests for the above” 但不给实际测试代码。
-- “Similar to Task N”。
+- “添加适当的异常处理”但不给具体错误语义。
+- “添加校验”但不给具体字段、条件、预期错误。
+- “补充上述测试”但不列出测试文件、测试方法和覆盖场景。
+- “类似任务 N”。
 - 只写“要做什么”，不写“怎么做”。
 - 引用类型、函数、方法，但任何任务都没有定义它们。
 
-## User-Triggered Plan Review
+## 用户触发的计划审查
 
-计划 review 不自动执行。每完成一个计划文件或计划分块后，只能提示用户：
+计划审查不自动执行。每完成一个计划文件或计划分块后，只能提示用户：
 
-> "Plan saved. Tell me if you want me to run a plan review."
+> "计划已保存。如果需要我审查计划，请直接告诉我。"
 
-只有用户明确要求“review / 审查 / 检查计划”后，才使用 `plan-document-reviewer-prompt.md` 派发 plan-document-reviewer。
+只有用户明确要求“review / 审查 / 检查计划”后，才使用 `plan-document-reviewer-prompt.md` 派发计划审查代理。
 
 用户触发计划审查时：
 
 1. 提供当前分块、`DESIGN_DOC_PATH`、`CORE_COGNITION_PATH` 和配套文件列表；不要传会话历史。
-2. 如果返回 `Issues Found`，按用户要求修改；修改后是否复审，也必须等待用户明确指令。
+2. 如果返回 `Issues Found`（发现问题），按用户要求修改；修改后是否复审，也必须等待用户明确指令。
 3. 如果超过 3 轮仍未通过，交给人工指导。
 
-只要存在计划/设计漂移、事实来源缺失、分块大小违规、任务步骤不可执行，或实现步骤标题没有显式要求代码注释，就必须判定审查失败。
+只要存在计划/设计漂移、事实来源缺失、分块大小违规、任务步骤不可执行、TDD 流程缺失，或实现步骤没有要求必要注释与详细设计/核心认知一致，就必须判定审查失败。
 
-## Handoff
+## 交接
 
 保存计划后输出：
 
-> "Plan complete and saved to `<PLAN_PATH>`（若已拆分，按入口文件中的 part 顺序执行）. Ready to execute?"
+> "计划已完成并保存到 `<PLAN_PATH>`（若已拆分，按入口文件中的 part 顺序执行）。"
 
 执行路径：
 
-- 如果 harness 支持子代理，使用 `superpowers:subagent-driven-development`。
-- 如果 harness 不支持子代理，使用 `superpowers:executing-plans` 分批执行并保留人工检查点。
+- 如果运行环境支持子代理，使用 `superpowers:subagent-driven-development`。
+- 如果运行环境不支持子代理，使用 `superpowers:executing-plans` 分批执行并保留人工检查点。
 
 不要在 `writing-plans` 阶段直接实现。
 
-## Completion Check
+## 完成检查
 
 完成计划前确认：
 
 - `PLAN_PATH` 存在，且是唯一入口。
 - 事实来源路径都是绝对路径。
-- 每个任务都有来源章节、文件范围、测试、命令、预期结果和提交步骤。
-- 涉及代码修改的计划包含 Code Review Gate，且没有把“计划里的 review 检查点”当作自动 review 授权。
-- 每个实现步骤都要求注释与设计/核心认知对齐。
+- 每个任务都有来源章节、文件范围、单元测试清单、预期验证语义和提交步骤。
+- 每个任务都引用 `skills/test-driven-development/SKILL.md`，并要求完整执行 TDD 流程。
+- 涉及代码修改的任务都要求按代码规范和测试规范审查，修复问题后再提交。
+- 每个实现步骤都要求必要注释与详细设计/核心认知对齐。
+- 计划没有写实际测试代码、实现代码、具体测试命令、验证命令或提交命令。
 - 没有占位符和语义漂移。
 - 计划足以交给不了解背景的工程师执行。
