@@ -5,10 +5,11 @@ description: Use after brainstorming approval to write or update detailed design
 
 # 编写详细设计
 
-## Purpose
+## 目标、边界与前置
 
 把已批准的方案落成可评审、可计划、可实现的详细设计产物。详细设计引用独立核心认知文档，并为 `writing-plans` 提供事实源。
-
+Use when：方案已获 `brainstorming` 批准，需要写入 `design-codex.md`；设计涉及架构、接口、状态、存储、缓存、消息、迁移中的两类及以上；需要拆出类图、时序图、状态图、存储、API 或迁移说明；或设计变更后需判断计划影响。
+Skip when：仍在澄清或比选方案时用 `brainstorming`；只生成实现步骤时用 `writing-plans`；纯文案润色且不涉及结构、实体、状态、规则和边界时不使用本技能。
 硬规则：
 
 - 主文档讲决策、边界、方案比选和验证口径。
@@ -17,23 +18,6 @@ description: Use after brainstorming approval to write or update detailed design
 - 配套文件承接图、接口、存储、运行时状态、迁移等实现细节。
 - 同一事实只定义一次，其他位置只引用。
 - 本技能不执行设计检查；整体检查由 `reviewing-design-artifacts` 在用户明确要求后触发。
-
-## When to Use
-
-Use when:
-
-- `brainstorming` 已批准推荐方案，需要写入 `design-codex.md`。
-- 设计涉及架构、接口、状态、存储、缓存、消息、迁移中的两类及以上。
-- 主文档需要拆出类图、时序图、状态图、存储、API 或迁移说明。
-- 设计变更后需要判断是否影响既有计划。
-
-Skip when:
-
-- 还在澄清需求或比较方案；先用 `brainstorming`。
-- 只是从已批准设计生成实现步骤；用 `writing-plans`。
-- 只是纯文案润色，不涉及结构、实体、状态、规则和边界。
-
-## Required Inputs and Paths
 
 开始前必须有：已批准设计方向、`core-principle` 的 `Vfinal`、已确认的 `foundation-gate.md`、真实代码库/数据库/依赖环境证据、来源锚点、范围/约束/成功标准、剩余 `待确认` 及其阻塞性。
 
@@ -50,14 +34,16 @@ Skip when:
 | 核心认知文档 | `core-cognition.md` | 前置事实源；缺失时先回 `core-principle` 创建或更新 |
 | 地基确认门禁 | 逻辑路径：`DESIGN_ARTIFACTS_DIR/foundation-gate.md`；主文档相对引用：`artifacts/foundation-gate.md` | 按功能模块索引 API、时序图、DDL/存储和一致性方案；必须先人工确认 |
 | 主设计文档 | `design-codex.md` | 背景、核心认知引用、方案比选、总体设计、功能点、验证、风险 |
-| 类图/接口图 | `artifacts/<topic>-class-diagram.puml` | 核心接口、类、方法、依赖 |
-| 时序图/状态图 | `artifacts/<module>/<module>-sequence.puml` / `artifacts/<topic>-state.puml` | 主链路、分支、状态迁移、补偿 |
-| 存储变更 | `artifacts/<module>/<module>-ddl.sql` / `artifacts/<module>/<module>-storage.md` | 表、字段、索引、约束或非关系型结构 |
-| 运行时状态 | `artifacts/<topic>-runtime-state.md` | cache、消息、任务、TTL、幂等、清理 |
-| API/事件契约 | `artifacts/<module>/<module>-openapi.yaml` / `artifacts/<topic>-contract.md` | Controller 契约、事件字段、错误语义、兼容 |
-| 数据一致性 | `artifacts/<module>/<module>-consistency.md` | 强一致/最终一致、事务、幂等、补偿、对账、重试 |
-| 迁移兼容 | `artifacts/<topic>-migration.md` | 灰度、回滚、兼容窗口、数据迁移 |
-| 联调前置条件 | `artifacts/<topic>-integration-prerequisites.md` | 环境、配置、外部依赖、调试顺序 |
+| 类图/接口图 | `artifacts/<topic>-class-diagram.puml` | 只画本次新增或修改的核心接口、类、方法和依赖方向 |
+| 时序图/状态图 | `artifacts/<module>/<module>-sequence.puml` / `artifacts/<topic>-state.puml` | 每模块至少一张主时序，覆盖主链路、分支、状态迁移、补偿；复杂流程再拆。状态有分支、回退、重试、并行汇合、拒绝或超时时补状态图 |
+| 存储变更 | `artifacts/<module>/<module>-ddl.sql` / `artifacts/<module>/<module>-storage.md` | 只写本次变更；写清表、字段、索引、约束或非关系型结构；关系型存储明确主键、唯一键、状态和时间字段 |
+| 运行时状态 | `artifacts/<topic>-runtime-state.md` | cache、消息、任务的名称模板、字段、生命周期、写入方、读取方、TTL、幂等、清理策略、并发语义 |
+| API/事件契约 | `artifacts/<module>/<module>-openapi.yaml` / `artifacts/<topic>-contract.md` | Controller 按 OpenAPI/Apifox 口径；可导入时优先 OpenAPI 3.0.3 YAML，只含路径、方法、参数、请求体、响应体、字段类型/可见性/nullable、返回分支、所属模块、错误语义、兼容例外，不混入 service、DAO、SQL、消息队列或内部调用链。非 Controller 事件字段和错误语义写独立契约；历史协议只写增量 |
+| 数据一致性 | `artifacts/<module>/<module>-consistency.md` | 内部、跨子系统、第三方都写强一致/最终一致选择、事务边界、幂等键、唯一约束、重试、补偿、对账、失败终态和人工确认 |
+| 迁移兼容 | `artifacts/<topic>-migration.md` | 影响存量数据、历史调用方、灰度或回滚时写灰度、回滚、兼容窗口、数据迁移 |
+| 联调前置条件 | `artifacts/<topic>-integration-prerequisites.md` | 环境、配置、外部依赖、域名、回调、模板、账号、数据准备、推荐调试顺序 |
+
+用户禁止画图时，用等价文字说明并标注“图示待补”。
 
 ## Foundation Gate Contract
 
@@ -133,7 +119,7 @@ Skip when:
 - 总门禁状态为 `confirmed` 前，不得写 `design-codex.md`。
 - 任一模块存在阻塞项时，总门禁状态必须是 `blocked` 或 `pending-human-confirmation`。
 
-## Main Document Contract
+## Main Document and Core Cognition Contract
 
 推荐结构：`背景和目标`、`范围和非目标`、`执行/上线/兼容约束`、`核心认知引用`、`方案比选`、`总体设计`、`功能点详细设计`、`配套文件`、`接口与验收`、`风险/待确认/受影响资产`。
 
@@ -141,20 +127,14 @@ Skip when:
 
 - 正文只保留“为什么这样设计、影响什么、如何验证”。
 - `核心认知引用` 只写 `CORE_COGNITION_PATH` 的相对路径、版本和本设计依赖的核心结论索引。
+- `CORE_COGNITION_PATH` 不存在时，先用 `core-principle` 创建或更新到 `Vfinal`；主文档不得复制核心认知全文。
+- 新事实改变结构、持久化实体、关系、属性、状态或全局约束时，先更新核心认知，再更新详细设计。
 - `配套文件` 必须引用 `foundation-gate.md`，并说明本设计消费的模块清单。
 - 完整 DDL、全量接口字段、完整状态表、完整消息体放到配套文件。
+- 功能点详细规则、执行路径、时序、图示、接口字段和验收条件只写在详细设计或配套文件。
 - 方案比选必须区分推荐和备选；备选说明适用条件、复杂度、行为差异、兼容影响。
 - 设计只服务特定范围时，必须写明适用边界。
 - 涉及已上线代码、历史接口或联调依赖时，写清兼容约束、联调前置条件和受影响资产。
-
-## Core Cognition Placement
-
-核心认知始终是独立文档：
-
-- `CORE_COGNITION_PATH` 不存在时，先用 `core-principle` 创建或更新到 `Vfinal`。
-- `design-codex.md` 必须引用 `CORE_COGNITION_PATH`，不得复制核心认知全文。
-- 详细设计新增事实会改变结构、持久化实体、关系、属性、状态或全局约束时，先更新核心认知，再更新详细设计。
-- 功能点详细规则、执行路径、时序、图示、接口字段和验收条件只写在详细设计或配套文件。
 
 ## Function Point Contract
 
@@ -171,20 +151,6 @@ Skip when:
 - `then`：按同一编号列输出、关系变化、属性变化、状态变化。
 - `verify`：与 `then` 场景编号一一对应，说明验证方法、结果和有效性。
 
-## Companion Artifact Rules
-
-- 类图/接口图：只画本次新增或修改的核心接口、类、方法和依赖方向。
-- 时序图：每个功能模块必须至少有一张主时序图；复杂流程再拆细分时序。
-- 状态图：状态存在多分支、回退、重试、并行汇合、拒绝或超时时必须补。
-- 存储变更：只写本次变更；关系型存储写主键、唯一键、索引、状态字段、时间字段。
-- 运行时状态：写名称模板、字段、生命周期、写入方、读取方、清理策略、并发语义。
-- API/事件契约：controller 接口统一按 OpenAPI/Apifox Controller 契约口径编写。可导入 Apifox 时优先输出 OpenAPI 3.0.3 YAML；只描述 controller 契约（路径、方法、参数、请求体、响应体、字段类型、字段可见性、nullable、返回分支、所属模块、兼容例外），不要混入 service、DAO、SQL、消息队列或内部调用链。非 controller 事件契约写入独立 `<topic>-contract.md`。历史协议只写本次增量。
-- 数据一致性：内部、跨子系统和第三方对接都必须写清强一致或最终一致选择、事务边界、幂等键、唯一约束、重试、补偿、对账和失败终态，并记录人工确认。
-- 迁移兼容：影响存量数据、历史调用方、灰度或回滚时必须补。
-- 联调前置条件：外部配置、域名、回调、模板、账号、数据准备和推荐调试顺序可拆出独立文件。
-
-用户禁止画图时，用等价文字说明并标注“图示待补”。
-
 ## User-Triggered Validation
 
 设计检查不自动执行。写完或更新详细设计后，只能提示：
@@ -195,7 +161,7 @@ Skip when:
 
 用户明确要求整体检查核心认知和详细设计时，使用 `reviewing-design-artifacts`。
 
-## Traceability and Plan Sync
+## Traceability, Plan Sync, and Completion
 
 提交详细设计前检查：
 
@@ -208,15 +174,12 @@ Skip when:
 - 状态图、正文、契约、存储说明不冲突。
 - `then` 与 `verify` 场景编号一致。
 - `TODO`、`TBD`、`待补`、`待确认` 不影响当前闭环。
+- 设计文档可作为 `writing-plans` 的事实来源。
+- 核心认知、功能点、配套文件没有重复定义。
+- 职责边界清楚：主文档讲决策，配套文件讲细节，计划讲执行。
 
 详细设计变更后必须检查计划联动：
 
 - `PLAN_PATH` 不存在：记录“不涉及既有计划同步”。
 - `PLAN_PATH` 存在：检查是否影响任务、文件范围、测试或顺序。
 - 影响计划时，调用 `writing-plans` 更新计划，并追加 `PLAN_CHANGELOG`。
-
-## Completion Check
-
-- 设计文档可作为 `writing-plans` 的事实来源。
-- 核心认知、功能点、配套文件没有重复定义。
-- 职责边界清楚：主文档讲决策，配套文件讲细节，计划讲执行。
